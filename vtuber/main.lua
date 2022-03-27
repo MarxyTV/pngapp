@@ -131,8 +131,11 @@ function love.draw()
         min_amplitude = amp
     end
 
+    local dx = love.math.random(-amp, amp)
+    local dy = love.math.random(-amp, amp)
+
     love.graphics.clear(0, 1, 0)
-    love.graphics.draw(getFrame(amp, doBlink), 0, 0)
+    love.graphics.draw(getFrame(amp, doBlink), dx, dy)
 end
 
 function love.quit()
