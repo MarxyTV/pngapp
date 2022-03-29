@@ -1,7 +1,7 @@
 local binser = require 'lib.binser'
 
 local config = {
-    extension = 'lua',
+    extension = 'data',
     data = nil
 }
 
@@ -55,7 +55,7 @@ function config:load(filename)
 
     local buffer, size = love.filesystem.read(file)
     local data, len = binser.deserialize(buffer)
-    self.data = copy(data)
+    self.data = copy(data[1])
     print(string.format('Loaded file %s', file))
 end
 
