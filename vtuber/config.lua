@@ -1,4 +1,4 @@
-local serialize = require 'lib.ser'
+local binser = require 'lib.binser'
 
 local config = {
     extension = 'lua',
@@ -53,7 +53,9 @@ function config:load(filename)
         return
     end
 
-    self.data = love.filesystem.load(file)()
+    local buffer, size = love.filesystem.read(file)
+    local data, len = binser.deserialize(buffer)
+    self.data = copy(data)
     print(string.format('Loaded file %s', file))
 end
 
@@ -67,7 +69,7 @@ end
 
 -- save
 function config:save(filename)
-    local data = serialize(self.data)
+    local data = binser.serialize(self.data)
     local file = fnwe(filename)
     local success, msg = love.filesystem.write(file, data)
 
