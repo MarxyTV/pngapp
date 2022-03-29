@@ -2,19 +2,34 @@ local nuklear = require 'nuklear'
 local soft = require 'lib.soft'
 local Collection = require 'lib.lua-collections.collections'
 local tick = require 'lib.tick'
+local binser = require 'lib.binser'
 
 local ui = nil
 
--- bound settings
-local talk_threshold = 0.045
-local scream_threshold = 0.47
-local decay_time = 0.25
-local shake_scale = 15.0
-local scream_shake_scale = 25.0
-local shake_lerp_speed = 5.0
-local blink_chance = 0.25
-local blink_duration = 0.035
-local blink_delay = 0.25
+local default_config = {
+    -- bound settings
+    talk_threshold = 0.045,
+    scream_threshold = 0.47,
+    decay_time = 0.25,
+    shake_scale = 15.0,
+    scream_shake_scale = 25.0,
+    shake_lerp_speed = 5.0,
+    blink_chance = 0.25,
+    blink_duration = 0.035,
+    blink_delay = 0.25,
+    -- stuff
+    offsetx = 0,
+    offsety = 0,
+    zoom = 1,
+    mic_index = 1,
+    bg_color = {
+        r = 0,
+        g = 1,
+        b = 0
+    }
+}
+
+local config = nil
 
 -- tracking
 local talk_type = 0
@@ -24,8 +39,8 @@ local blink_end_time = 0
 local do_blink = false
 local wave_data = nil
 local current_frame = nil
-local dx = nil
-local dy = nil
+local image_x = nil
+local image_y = nil
 
 -- stuff
 local microphone = nil
@@ -37,7 +52,68 @@ local frames = {
     scream = nil
 }
 
+-- ui stuff
+local dragging = false
+local settings_open = true
+local debug_open = true
+
+--
+local config_name = 'pngapp.settings'
+
+function saveConfig()
+    -- TODO: error check
+    love.filesystem.write(config_name, binser.serialize(config))
+end
+
+function copy(obj, seen)
+    if type(obj) ~= 'table' then return obj end
+    if seen and seen[obj] then return seen[obj] end
+    local s = seen or {}
+    local res = setmetatable({}, getmetatable(obj))
+    s[obj] = res
+    for k, v in pairs(obj) do res[copy(k, s)] = copy(v, s) end
+    return res
+end
+
+function dump(o)
+   if type(o) == 'table' then
+      local s = '{ '
+      for k,v in pairs(o) do
+         if type(k) ~= 'number' then k = '"'..k..'"' end
+         s = s .. '['..k..'] = ' .. dump(v) .. ','
+      end
+      return s .. '} '
+   else
+      return tostring(o)
+   end
+end
+
+function resetConfig()
+    config = default_config
+    config.offsetx = (love.graphics.getWidth() / 2) - 256
+    config.offsety = (love.graphics.getHeight() / 2) - 256
+    image_x:set(config.offsetx, { reset = true })
+    image_y:set(config.offsety, { reset = true })
+end
+
+function loadConfig()
+    local str = love.filesystem.read(config_name)
+
+    if str == nil then
+        resetConfig()
+        return
+    end
+
+    local saved_config, len = binser.deserialize(str)
+
+    config = copy(saved_config[1])
+
+    print(config.mic_index)
+end
+
 function love.load()
+    loadConfig()
+
 	ui = nuklear.newUI()
 
     -- load image frames
@@ -47,24 +123,56 @@ function love.load()
     frames.closed_open = love.graphics.newImage("images/eyes_closed_mouth_open.png")
     frames.scream = love.graphics.newImage("images/scream.png")
 
-    microphone = love.audio.getRecordingDevices()[1]
+    microphone = love.audio.getRecordingDevices()[config.mic_index]
     microphone:start() -- start listening to mic
 
-    dx = soft:new(0) -- used to ease shake
-    dy = soft:new(0) -- used to ease shake
+    image_x = soft:new(config.offsetx) -- used to ease shake
+    image_x:setSpeed(config.shake_lerp_speed)
+    image_y = soft:new(config.offsety) -- used to ease shake
+    image_y:setSpeed(config.shake_lerp_speed)
 
     tick.framerate = 30
 
-    love.graphics.setBackgroundColor(0, 1, 0)
+    love.graphics.setBackgroundColor(config.bg_color.r, config.bg_color.g, config.bg_color.b)
 end
 
 function MenuBar()
     if ui:windowBegin('MenuBar', 0, 0, 1920, 25, 'background') then
-        ui:layoutRow('dynamic', 20, 1)
+        ui:layoutRow('static', 20, 30, 2)
         if ui:menuBegin('File', 'none', 150, 200) then
             ui:layoutRow('dynamic', 20, 1)
+            if ui:button('Save') then
+                saveConfig()
+            end
+            if ui:button('Load Defaults') then
+                resetConfig()
+            end
             if ui:button('Quit') then
                 love.event.quit()
+            end
+        end
+        ui:menuEnd()
+
+        if ui:menuBegin('View', 'none', 150, 200) then
+            ui:layoutRow('dynamic', 20, 1)
+            if ui:button(settings_open and 'Hide Settings' or 'Show Settings') then
+                settings_open = not settings_open
+
+                if settings_open then
+                    ui:windowShow('Settings')
+                else
+                    ui:windowHide('Settings')
+                end
+            end
+
+            if ui:button(debug_open and 'Hide Debug Menu' or 'Show Debug Menu') then
+                debug_open = not debug_open
+
+                if debug_open then
+                    ui:windowShow('Debug')
+                else
+                    ui:windowHide('Debug')
+                end
             end
         end
         ui:menuEnd()
@@ -87,27 +195,27 @@ function sliderElement(label, min, current, max, step, decimals)
 end
 
 function SettingsWindow()
-    if ui:windowBegin('Settings', 950, 35, 320, 480,
+    if ui:windowBegin('Settings', 10, 35, 320, 480,
             'border', 'title', 'movable', 'scalable') then
 
-        talk_threshold = sliderElement('Talk Threshold', 0, talk_threshold, scream_threshold, 0.001, 3)
-        scream_threshold = sliderElement('Scream Threshold', talk_threshold, scream_threshold, 2, 0.001, 3)
-        decay_time = sliderElement('Talk Decay', 0, decay_time, 1, 0.001, 3)
+        config.talk_threshold = sliderElement('Talk Threshold', 0, config.talk_threshold, config.scream_threshold, 0.001, 3)
+        config.scream_threshold = sliderElement('Scream Threshold', config.talk_threshold, config.scream_threshold, 2, 0.001, 3)
+        config.decay_time = sliderElement('Talk Decay', 0, config.decay_time, 1, 0.001, 3)
 
-        shake_scale = sliderElement('Shake Scale', 0, shake_scale, 200, 0.5)
-        scream_shake_scale = sliderElement('Scream Shake Scale', 0, scream_shake_scale, 200, 0.5)
-        shake_lerp_speed = sliderElement('Shake Lerp Speed', 0.01, shake_lerp_speed, 20, 1)
+        config.shake_scale = sliderElement('Shake Scale', 0, config.shake_scale, 200, 0.5)
+        config.scream_shake_scale = sliderElement('Scream Shake Scale', 0, config.scream_shake_scale, 200, 0.5)
+        config.shake_lerp_speed = sliderElement('Shake Lerp Speed', 0.01, config.shake_lerp_speed, 20, 1)
 
-        blink_chance = sliderElement('Blink Chance', 0, blink_chance, 1, 0.01, 2)
-        blink_duration = sliderElement('Blink Duration', 0.001, blink_duration, 4, 0.001, 3)
-        blink_delay = sliderElement('Blink Delay', 0.001, blink_delay, 4, 0.001, 3)
+        config.blink_chance = sliderElement('Blink Chance', 0, config.blink_chance, 1, 0.01, 2)
+        config.blink_duration = sliderElement('Blink Duration', 0.001, config.blink_duration, 4, 0.001, 3)
+        config.blink_delay = sliderElement('Blink Delay', 0.001, config.blink_delay, 4, 0.001, 3)
     end
 
     ui:windowEnd()
 end
 
 function DebugWindow()
-    if ui:windowBegin('Debug', 740, 35, 200, 200,
+    if ui:windowBegin('Debug', 350, 35, 200, 200,
             'border', 'title', 'movable', 'scalable') then
 
         ui:layoutRow('dynamic', 50, 1)
@@ -125,10 +233,10 @@ function getAmplitude()
 end
 
 function updateShake(magnitude)
-    dx:set(love.math.random(-magnitude, magnitude), { reset = true })
-    dx:to(0, { speed = shake_lerp_speed })
-    dy:set(love.math.random(-magnitude, magnitude), { reset = true })
-    dy:to(0, { speed = shake_lerp_speed })
+    image_x:set(love.math.random(-magnitude + config.offsetx, magnitude + config.offsetx), { reset = true })
+    image_x:to(config.offsetx, { speed = config.shake_lerp_speed })
+    image_y:set(love.math.random(-magnitude + config.offsety, magnitude + config.offsety), { reset = true })
+    image_y:to(config.offsety, { speed = config.shake_lerp_speed })
 end
 
 function getFrame(amplitude)
@@ -136,42 +244,42 @@ function getFrame(amplitude)
     local lastTalk = love.timer.getTime() - talk_end_time
 
     -- check for talk decay
-    if lastTalk < decay_time then
+    if lastTalk < config.decay_time then
         -- always update on scream since its highest state
-        if amplitude > scream_threshold or talk_type == 1 then
+        if amplitude > config.scream_threshold or talk_type == 1 then
             -- screaming
             frame = frames.scream
             talk_type = 1
             -- only update talk time if were still reaching the threshold
-            if amplitude > scream_threshold then
-                talk_end_time = love.timer.getTime() + decay_time
-                updateShake(amplitude * scream_shake_scale)
+            if amplitude > config.scream_threshold then
+                talk_end_time = love.timer.getTime() + config.decay_time
+                updateShake(amplitude * config.scream_shake_scale)
             end
-        elseif (amplitude > talk_threshold and amplitude < scream_threshold) or talk_type == 0 then
+        elseif (amplitude > config.talk_threshold and amplitude < config.scream_threshold) or talk_type == 0 then
             -- if were not decaying screaming, update talk if needed
             -- talking
             frame = do_blink and frames.closed_open or frames.open_open
             talk_type = 0
             -- only update talk time if were still reaching the threshold
-            if amplitude > talk_threshold then
-                talk_end_time = love.timer.getTime() + decay_time
-                updateShake(amplitude * shake_scale)
+            if amplitude > config.talk_threshold then
+                talk_end_time = love.timer.getTime() + config.decay_time
+                updateShake(amplitude * config.shake_scale)
             end
         end
     else
         -- not decaying, update
-        if amplitude > scream_threshold then
+        if amplitude > config.scream_threshold then
             -- screaming
             frame = frames.scream
-            talk_end_time = love.timer.getTime() + decay_time
+            talk_end_time = love.timer.getTime() + config.decay_time
             talk_type = 1
-            updateShake(amplitude * scream_shake_scale)
-        elseif amplitude > talk_threshold then
+            updateShake(amplitude * config.scream_shake_scale)
+        elseif amplitude > config.talk_threshold then
             -- talking
             frame = do_blink and frames.closed_open or frames.open_open
-            talk_end_time = love.timer.getTime() + decay_time
+            talk_end_time = love.timer.getTime() + config.decay_time
             talk_type = 0
-            updateShake(amplitude * shake_scale)
+            updateShake(amplitude * config.shake_scale)
         else
             -- quiet
             frame = do_blink and frames.closed_closed or frames.open_closed
@@ -183,34 +291,36 @@ end
 
 function love.update(dt)
     -- get mic data
-    local mic_buffer = microphone:getData()
+    if microphone ~= nil then
+        local mic_buffer = microphone:getData()
 
-    wave_data = collect({})
+        wave_data = collect({})
 
-    if mic_buffer ~= nil then
-        -- sample data starts at index 0
-        for i = 0, mic_buffer:getSampleCount() - 1 do
-            wave_data:push(mic_buffer:getSample(i))
+        if mic_buffer ~= nil then
+            -- sample data starts at index 0
+            for i = 0, mic_buffer:getSampleCount() - 1 do
+                wave_data:push(mic_buffer:getSample(i))
+            end
         end
     end
 
     -- check for blinking
     do_blink = false
 
-    if love.timer.getTime() - blink_time >= blink_delay then
-        if love.math.random() <= blink_chance then
+    if love.timer.getTime() - blink_time >= config.blink_delay then
+        if love.math.random() <= config.blink_chance then
             -- we blink, add delay before we can blink again
-            blink_end_time = love.timer.getTime() + blink_duration
-            blink_time = love.timer.getTime() + blink_delay
+            blink_end_time = love.timer.getTime() + config.blink_duration
+            blink_time = love.timer.getTime() + config.blink_delay
             do_blink = true
         else
             -- we no blink, add delay before trying again
-            blink_time = love.timer.getTime() + blink_delay * 2
+            blink_time = love.timer.getTime() + config.blink_delay * 2
         end
     end
 
     -- check if still blinking
-    if do_blink == false and love.timer.getTime() - blink_end_time < blink_duration then
+    if do_blink == false and love.timer.getTime() - blink_end_time < config.blink_duration then
         do_blink = true
     end
 
@@ -231,7 +341,7 @@ function love.update(dt)
 end
 
 function love.draw()
-    love.graphics.draw(current_frame, dx:get(), dy:get())
+    love.graphics.draw(current_frame, image_x:get(), image_y:get(), 0, config.zoom, config.zoom)
     ui:draw()
 end
 
@@ -248,15 +358,37 @@ function love.keyreleased(key, scancode)
 end
 
 function love.mousepressed(x, y, button, istouch, presses)
-	ui:mousepressed(x, y, button, istouch, presses)
+	if not ui:mousepressed(x, y, button, istouch, presses) then
+        -- start draging if not ui press and right click
+        if button == 2 then
+            dragging = true
+        end
+    end
 end
 
 function love.mousereleased(x, y, button, istouch, presses)
-	ui:mousereleased(x, y, button, istouch, presses)
+	if not ui:mousereleased(x, y, button, istouch, presses) then
+    end
+
+    -- stop dragging on right click release
+    -- we want this even if ui captures it so it doesnt get stuck dragging
+    if button == 2 then
+        dragging = false
+    end
 end
 
 function love.mousemoved(x, y, dx, dy, istouch)
-	ui:mousemoved(x, y, dx, dy, istouch)
+	if not ui:mousemoved(x, y, dx, dy, istouch) then
+    end
+
+    -- if not clicked on menu, drag menu
+    if dragging then
+        config.offsetx = config.offsetx + dx
+        config.offsety = config.offsety + dy
+
+        image_x:set(config.offsetx, { reset = true })
+        image_y:set(config.offsety, { reset = true })
+    end
 end
 
 function love.textinput(text)
@@ -264,5 +396,13 @@ function love.textinput(text)
 end
 
 function love.wheelmoved(x, y)
-	ui:wheelmoved(x, y)
+	if not ui:wheelmoved(x, y) then
+        if y ~= 0 then
+            config.zoom = config.zoom + (y * 0.1)
+
+            if config.zoom < 0.1 then
+                config.zoom = 0.1
+            end
+        end
+    end
 end
