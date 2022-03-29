@@ -55,8 +55,6 @@ function love.load()
     image_y:setSpeed(config.data.shake_lerp_speed)
 
     tick.framerate = 30
-
-    love.graphics.setBackgroundColor(config.data.bg_color.r, config.data.bg_color.g, config.data.bg_color.b)
 end
 
 function MenuBar()
@@ -134,6 +132,11 @@ function SettingsWindow()
         config.data.blink_chance = sliderElement('Blink Chance', 0, config.data.blink_chance, 1, 0.01, 2)
         config.data.blink_duration = sliderElement('Blink Duration', 0.001, config.data.blink_duration, 4, 0.001, 3)
         config.data.blink_delay = sliderElement('Blink Delay', 0.001, config.data.blink_delay, 4, 0.001, 3)
+
+        -- ui:layoutRow('dynamic', 20, 1)
+        -- ui:label('Background Color')
+        -- ui:layoutRow('dynamic', 150, 2)
+        -- config.data.bg_color = ui:colorPicker(config.data.bg_color)
     end
 
     ui:windowEnd()
@@ -266,6 +269,8 @@ function love.update(dt)
 end
 
 function love.draw()
+    local r, g, b = nuklear.colorParseRGBA(config.data.bg_color)
+    love.graphics.setBackgroundColor(r / 255, g / 255, b / 255)
     love.graphics.draw(current_frame, image_x:get(), image_y:get(), 0, config.data.zoom, config.data.zoom)
     ui:draw()
 end

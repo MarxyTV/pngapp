@@ -21,11 +21,7 @@ local default_config = {
     offsety = 0,
     zoom = 1,
     mic_index = 1,
-    bg_color = {
-        r = 0,
-        g = 1,
-        b = 0
-    }
+    bg_color = "#00ff00"
 }
 
 setmetatable(config, config)
