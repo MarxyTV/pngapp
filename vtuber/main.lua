@@ -57,7 +57,7 @@ function love.load()
 end
 
 function MenuBar()
-    if ui:windowBegin('MenuBar', 0, 0, 1920, 25, 'background') then
+    if ui:windowBegin('MenuBar', 0, 0, love.graphics.getWidth(), 25, 'background') then
         ui:layoutRow('static', 20, 30, 2)
         if ui:menuBegin('File', 'none', 150, 200) then
             ui:layoutRow('dynamic', 20, 1)
@@ -89,12 +89,6 @@ function MenuBar()
 
             if ui:button(debug_open and 'Hide Debug Menu' or 'Show Debug Menu') then
                 debug_open = not debug_open
-
-                if debug_open then
-                    ui:windowShow('Debug')
-                else
-                    ui:windowHide('Debug')
-                end
             end
         end
         ui:menuEnd()
@@ -114,7 +108,7 @@ end
 local cr, cg, cb = 0, 0, 0
 
 function SettingsWindow()
-    if ui:windowBegin('Settings', 0, 25, 320, love.graphics.getHeight() - 25, 'border', 'scrollbar') then
+    if ui:windowBegin('Settings', 0, 25, 360, love.graphics.getHeight() - 25, 'border', 'scrollbar') then
         config.data.talk_threshold = sliderElement('Talk Threshold', 0, config.data.talk_threshold, config.data.scream_threshold, 0.001, 3)
         config.data.scream_threshold = sliderElement('Scream Threshold', config.data.talk_threshold, config.data.scream_threshold, 2, 0.001, 3)
         config.data.decay_time = sliderElement('Talk Decay', 0, config.data.decay_time, 1000, 10, 0, 'ms')
@@ -140,7 +134,7 @@ function SettingsWindow()
 end
 
 function DebugWindow()
-    if ui:windowBegin('Debug', 350, 35, 200, 200,
+    if ui:windowBegin('Debug', 360, 25, 200, 200,
             'border', 'title', 'movable', 'scalable') then
 
         ui:layoutRow('dynamic', 50, 1)
@@ -284,7 +278,10 @@ function love.update(dt)
 
     MenuBar()
     SettingsWindow()
-    DebugWindow()
+
+    if debug_open then
+        DebugWindow()
+    end
 
 	ui:frameEnd()
 end
