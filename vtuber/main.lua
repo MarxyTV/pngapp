@@ -1,7 +1,6 @@
 local nuklear = require 'nuklear'
 local soft = require 'lib.soft'
 local Collection = require 'lib.lua-collections.collections'
-local tick = require 'lib.tick'
 local binser = require 'lib.binser'
 
 local config = require 'config'
@@ -55,8 +54,6 @@ function love.load()
     image_x:setSpeed(config.data.shake_lerp_speed)
     image_y = soft:new(config.data.offsety) -- used to ease shake
     image_y:setSpeed(config.data.shake_lerp_speed)
-
-    tick.framerate = 30
 end
 
 function MenuBar()
@@ -212,6 +209,30 @@ function getFrame(amplitude)
     end
 
     return frame
+end
+
+local combo = {value = 1, items = {'A', 'B', 'C'}}
+
+function TestWindow()
+    if ui:windowBegin('Simple Example', 100, 100, 200, 160,
+			'border', 'title', 'movable') then
+		ui:layoutRow('dynamic', 30, 1)
+		ui:label('Hello, world!')
+		ui:layoutRow('dynamic', 30, 2)
+		ui:label('Combo box:')
+		if ui:combobox(combo, combo.items) then
+			print('Combo!', combo.items[combo.value])
+		end
+		ui:layoutRow('dynamic', 30, 3)
+		ui:label('Buttons:')
+		if ui:button('Sample') then
+			print('Sample!')
+		end
+		if ui:button('Button') then
+			print('Button!')
+		end
+	end
+    ui:windowEnd()
 end
 
 function love.update(dt)
