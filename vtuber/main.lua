@@ -103,10 +103,10 @@ function MenuBar()
     ui:windowEnd()
 end
 
-function sliderElement(label, min, current, max, step, decimals)
+function sliderElement(label, min, current, max, step, decimals, suffix)
     ui:layoutRow('dynamic', 25, 2)
     ui:label(label)
-    ui:label(round(current, decimals), 'right')
+    ui:label(round(current, decimals) .. (suffix or ''), 'right')
     ui:layoutRow('dynamic', 25, 1)
     return ui:slider(min, current, max, step)
 end
@@ -117,15 +117,15 @@ function SettingsWindow()
     if ui:windowBegin('Settings', 0, 25, 320, love.graphics.getHeight() - 25, 'border', 'scrollbar') then
         config.data.talk_threshold = sliderElement('Talk Threshold', 0, config.data.talk_threshold, config.data.scream_threshold, 0.001, 3)
         config.data.scream_threshold = sliderElement('Scream Threshold', config.data.talk_threshold, config.data.scream_threshold, 2, 0.001, 3)
-        config.data.decay_time = sliderElement('Talk Decay', 0, config.data.decay_time, 1, 0.001, 3)
+        config.data.decay_time = sliderElement('Talk Decay', 0, config.data.decay_time, 1000, 10, 0, 'ms')
 
         config.data.shake_scale = sliderElement('Shake Scale', 0, config.data.shake_scale, 200, 0.5)
         config.data.scream_shake_scale = sliderElement('Scream Shake Scale', 0, config.data.scream_shake_scale, 200, 0.5)
         config.data.shake_lerp_speed = sliderElement('Shake Lerp Speed', 0.01, config.data.shake_lerp_speed, 20, 1)
 
-        config.data.blink_chance = sliderElement('Blink Chance', 0, config.data.blink_chance, 1, 0.01, 2)
-        config.data.blink_duration = sliderElement('Blink Duration', 0.001, config.data.blink_duration, 4, 0.001, 3)
-        config.data.blink_delay = sliderElement('Blink Delay', 0.001, config.data.blink_delay, 4, 0.001, 3)
+        config.data.blink_chance = sliderElement('Blink Chance', 0, config.data.blink_chance, 100, 1, 0, '%')
+        config.data.blink_duration = sliderElement('Blink Duration', 10, config.data.blink_duration, 4000, 10, 0, 'ms')
+        config.data.blink_delay = sliderElement('Blink Delay', 10, config.data.blink_delay, 4000, 10, 3, 'ms')
 
         ui:layoutRow('dynamic', 20, 1)
         ui:label('Background Color')
@@ -166,7 +166,7 @@ end
 
 function getFrame(amplitude)
     local frame = nil
-    local lastTalk = love.timer.getTime() - talk_end_time
+    local lastTalk = timeMS() - talk_end_time
 
     -- check for talk decay
     if lastTalk < config.data.decay_time then
@@ -177,7 +177,7 @@ function getFrame(amplitude)
             talk_type = 1
             -- only update talk time if were still reaching the threshold
             if amplitude > config.data.scream_threshold then
-                talk_end_time = love.timer.getTime() + config.data.decay_time
+                talk_end_time = timeMS() + config.data.decay_time
                 updateShake(amplitude * config.data.scream_shake_scale)
             end
         elseif (amplitude > config.data.talk_threshold and amplitude < config.data.scream_threshold) or talk_type == 0 then
@@ -187,7 +187,7 @@ function getFrame(amplitude)
             talk_type = 0
             -- only update talk time if were still reaching the threshold
             if amplitude > config.data.talk_threshold then
-                talk_end_time = love.timer.getTime() + config.data.decay_time
+                talk_end_time = timeMS() + config.data.decay_time
                 updateShake(amplitude * config.data.shake_scale)
             end
         end
@@ -196,13 +196,13 @@ function getFrame(amplitude)
         if amplitude > config.data.scream_threshold then
             -- screaming
             frame = frames.scream
-            talk_end_time = love.timer.getTime() + config.data.decay_time
+            talk_end_time = timeMS() + config.data.decay_time
             talk_type = 1
             updateShake(amplitude * config.data.scream_shake_scale)
         elseif amplitude > config.data.talk_threshold then
             -- talking
             frame = do_blink and frames.closed_open or frames.open_open
-            talk_end_time = love.timer.getTime() + config.data.decay_time
+            talk_end_time = timeMS() + config.data.decay_time
             talk_type = 0
             updateShake(amplitude * config.data.shake_scale)
         else
@@ -256,20 +256,20 @@ function love.update(dt)
     -- check for blinking
     do_blink = false
 
-    if love.timer.getTime() - blink_time >= config.data.blink_delay then
-        if love.math.random() <= config.data.blink_chance then
+    if timeMS() - blink_time >= config.data.blink_delay then
+        if love.math.random() * 100 <= config.data.blink_chance then
             -- we blink, add delay before we can blink again
-            blink_end_time = love.timer.getTime() + config.data.blink_duration
-            blink_time = love.timer.getTime() + config.data.blink_delay
+            blink_end_time = timeMS() + config.data.blink_duration
+            blink_time = timeMS() + config.data.blink_delay
             do_blink = true
         else
             -- we no blink, add delay before trying again
-            blink_time = love.timer.getTime() + config.data.blink_delay * 2
+            blink_time = timeMS() + config.data.blink_delay * 2
         end
     end
 
     -- check if still blinking
-    if do_blink == false and love.timer.getTime() - blink_end_time < config.data.blink_duration then
+    if do_blink == false and timeMS() - blink_end_time < config.data.blink_duration then
         do_blink = true
     end
 

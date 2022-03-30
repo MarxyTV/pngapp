@@ -14,3 +14,8 @@ function copy_table(obj, seen)
     for k, v in pairs(obj) do res[copy_table(k, s)] = copy_table(v, s) end
     return res
 end
+
+-- timeMS
+function timeMS()
+    return love.timer.getTime() * 1000
+end

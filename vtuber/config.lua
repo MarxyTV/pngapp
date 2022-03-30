@@ -11,13 +11,13 @@ local default_config = {
     -- bound settings
     talk_threshold = 0.045,
     scream_threshold = 0.47,
-    decay_time = 0.25,
+    decay_time = 250,
     shake_scale = 15.0,
     scream_shake_scale = 25.0,
     shake_lerp_speed = 5.0,
-    blink_chance = 0.25,
-    blink_duration = 0.035,
-    blink_delay = 0.25,
+    blink_chance = 25,
+    blink_duration = 35,
+    blink_delay = 250,
     -- stuff
     offsetx = 0,
     offsety = 0,
