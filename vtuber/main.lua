@@ -6,6 +6,8 @@ local binser = require 'lib.binser'
 
 local config = require 'config'
 
+require 'utility'
+
 local ui = nil
 
 -- tracking
@@ -102,11 +104,6 @@ function MenuBar()
     end
 
     ui:windowEnd()
-end
-
-function round(v, d)
-    local mult = math.pow(10, d or 0) -- round to 0 places when d not supplied
-    return math.floor(v * mult + 0.5) / mult
 end
 
 function sliderElement(label, min, current, max, step, decimals)

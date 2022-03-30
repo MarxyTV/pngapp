@@ -1,5 +1,7 @@
 local binser = require 'lib.binser'
 
+require 'utility'
+
 local config = {
     extension = 'data',
     data = nil
@@ -31,17 +33,6 @@ local function fnwe(fn)
     return string.format('%s.%s', fn, config.extension)
 end
 
--- copy
-local function copy(obj, seen)
-    if type(obj) ~= 'table' then return obj end
-    if seen and seen[obj] then return seen[obj] end
-    local s = seen or {}
-    local res = setmetatable({}, getmetatable(obj))
-    s[obj] = res
-    for k, v in pairs(obj) do res[copy(k, s)] = copy(v, s) end
-    return res
-end
-
 -- load
 function config:load(filename)
     local file = fnwe(filename)
@@ -55,13 +46,13 @@ function config:load(filename)
 
     local buffer, size = love.filesystem.read(file)
     local data, len = binser.deserialize(buffer)
-    self.data = copy(data[1])
+    self.data = copy_table(data[1])
     print(string.format('Loaded file %s', file))
 end
 
 -- reset
 function config:reset()
-    self.data = copy(default_config)
+    self.data = copy_table(default_config)
     self.data.offsetx = (love.graphics.getWidth() / 2)
     self.data.offsety = (love.graphics.getHeight() / 2)
     print(string.format('Reset config data'))
