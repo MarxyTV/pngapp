@@ -104,17 +104,17 @@ function MenuBar()
 end
 
 function sliderElement(label, min, current, max, step, decimals)
-    ui:layoutRow('dynamic', 20, 2)
+    ui:layoutRow('dynamic', 25, 2)
     ui:label(label)
     ui:label(round(current, decimals), 'right')
-    ui:layoutRow('dynamic', 20, 1)
+    ui:layoutRow('dynamic', 25, 1)
     return ui:slider(min, current, max, step)
 end
 
-function SettingsWindow()
-    if ui:windowBegin('Settings', 10, 35, 320, 480,
-            'border', 'title', 'movable', 'scalable') then
+local cr, cg, cb = 0, 0, 0
 
+function SettingsWindow()
+    if ui:windowBegin('Settings', 0, 25, 320, love.graphics.getHeight() - 25, 'border', 'scrollbar') then
         config.data.talk_threshold = sliderElement('Talk Threshold', 0, config.data.talk_threshold, config.data.scream_threshold, 0.001, 3)
         config.data.scream_threshold = sliderElement('Scream Threshold', config.data.talk_threshold, config.data.scream_threshold, 2, 0.001, 3)
         config.data.decay_time = sliderElement('Talk Decay', 0, config.data.decay_time, 1, 0.001, 3)
@@ -127,10 +127,13 @@ function SettingsWindow()
         config.data.blink_duration = sliderElement('Blink Duration', 0.001, config.data.blink_duration, 4, 0.001, 3)
         config.data.blink_delay = sliderElement('Blink Delay', 0.001, config.data.blink_delay, 4, 0.001, 3)
 
-        -- ui:layoutRow('dynamic', 20, 1)
-        -- ui:label('Background Color')
-        -- ui:layoutRow('dynamic', 150, 2)
-        -- config.data.bg_color = ui:colorPicker(config.data.bg_color)
+        ui:layoutRow('dynamic', 20, 1)
+        ui:label('Background Color')
+        ui:layoutRow('dynamic', 20, 1)
+        config.data.bg_color.r = ui:property('Red', 0, config.data.bg_color.r, 255, 1, 1)
+        config.data.bg_color.g = ui:property('Green', 0, config.data.bg_color.g, 255, 1, 1)
+        config.data.bg_color.b = ui:property('Blue', 0, config.data.bg_color.b, 255, 1, 1)
+
     end
 
     ui:windowEnd()
@@ -287,8 +290,7 @@ function love.update(dt)
 end
 
 function love.draw()
-    local r, g, b = nuklear.colorParseRGBA(config.data.bg_color)
-    love.graphics.setBackgroundColor(r / 255, g / 255, b / 255)
+    love.graphics.setBackgroundColor(config.data.bg_color.r / 255, config.data.bg_color.g / 255, config.data.bg_color.b / 255)
     love.graphics.draw(current_frame, image_x:get(), image_y:get(), 0, config.data.zoom, config.data.zoom)
     ui:draw()
 end
