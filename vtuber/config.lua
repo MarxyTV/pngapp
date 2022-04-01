@@ -4,7 +4,8 @@ require 'utility'
 
 local config = {
     extension = 'data',
-    data = nil
+    data = nil,
+    initial = nil
 }
 
 local default_config = {
@@ -14,7 +15,9 @@ local default_config = {
     decay_time = 250,
     shake_scale = 15.0,
     scream_shake_scale = 25.0,
-    shake_lerp_speed = 5.0,
+    shake_lerp_speed = 500,
+    shake_delay = 50,
+    shake_type = 'linear',
     blink_chance = 25,
     blink_duration = 35,
     blink_delay = 250,
@@ -51,7 +54,14 @@ function config:load(filename)
     local buffer, size = love.filesystem.read(file)
     local data, len = binser.deserialize(buffer)
     self.data = copy_table(data[1])
+    self.initial = copy_table(data[1]) -- store this so we can undo changes later
     print(string.format('Loaded file %s', file))
+end
+
+-- undo changes
+function config:undo_changes()
+    self.data = copy_table(self.initial)
+    print('Undid changes')
 end
 
 -- reset
@@ -71,6 +81,7 @@ function config:save(filename)
     if not success then
         print(string.format('Failed to save file %s: %s', file, msg))
     else
+        self.initial = copy_table(self.data) -- store new "initial"
         print(string.format('Saved file as %s', file))
     end
 end

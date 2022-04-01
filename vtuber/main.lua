@@ -1,10 +1,9 @@
 local nuklear = require 'nuklear'
-local soft = require 'lib.soft'
 local Collection = require 'lib.lua-collections.collections'
 local binser = require 'lib.binser'
+local tween = require 'lib.tween'
 
 local config = require 'config'
-
 require 'utility'
 
 local ui = nil
@@ -14,11 +13,15 @@ local talk_type = 0
 local talk_end_time = 0
 local blink_time = 0
 local blink_end_time = 0
+local shake_end_time = 0
 local do_blink = false
 local wave_data = nil
 local current_frame = nil
-local image_x = nil
-local image_y = nil
+local image_pos = {
+    x = 0,
+    y = 0
+}
+local image_tween = nil
 
 -- stuff
 local microphone = nil
@@ -34,6 +37,28 @@ local frames = {
 local dragging = false
 local settings_open = true
 local debug_open = false
+local easeIndex = 0
+
+local easingFunctions = {
+    'linear',
+    -- quad
+    'inQuad',
+    'outQuad',
+    'inOutQuad',
+    'outInQuad',
+    -- cubic
+    'inCubic',
+    'outCubic',
+    'inOutCubic',
+    'outInCubic'
+}
+
+function default_position()
+    return {
+        x = config.data.offsetx or 0,
+        y = config.data.offsety or 0
+    }
+end
 
 function love.load()
     config:load('pngapp')
@@ -50,10 +75,15 @@ function love.load()
     microphone = love.audio.getRecordingDevices()[config.data.mic_index]
     microphone:start() -- start listening to mic
 
-    image_x = soft:new(config.data.offsetx) -- used to ease shake
-    image_x:setSpeed(config.data.shake_lerp_speed)
-    image_y = soft:new(config.data.offsety) -- used to ease shake
-    image_y:setSpeed(config.data.shake_lerp_speed)
+    image_pos = default_position()
+
+    -- inverse index
+    local easeIndexTable = {}
+    for k, v in pairs(easingFunctions) do
+        easeIndexTable[v] = k
+    end
+
+    easeIndex = easeIndexTable[config.data.shake_type]
 end
 
 function MenuBar()
@@ -63,11 +93,21 @@ function MenuBar()
             ui:layoutRow('dynamic', 20, 1)
             if ui:button('Save') then
                 config:save('pngapp')
+                ui:popupClose()
+            end
+            if ui:button('Undo Changes') then
+                config:undo_changes()
+                image_tween = nil
+                image_pos.x = config.data.offsetx
+                image_pos.y = config.data.offsety
+                ui:popupClose()
             end
             if ui:button('Load Defaults') then
                 config:reset()
-                image_x:set(config.data.offsetx, { reset = true })
-                image_y:set(config.data.offsety, { reset = true })
+                image_tween = nil
+                image_pos.x = config.data.offsetx
+                image_pos.y = config.data.offsety
+                ui:popupClose()
             end
             if ui:button('Quit') then
                 love.event.quit()
@@ -85,10 +125,12 @@ function MenuBar()
                 else
                     ui:windowHide('Settings')
                 end
+                ui:popupClose()
             end
 
             if ui:button(debug_open and 'Hide Debug Menu' or 'Show Debug Menu') then
                 debug_open = not debug_open
+                ui:popupClose()
             end
         end
         ui:menuEnd()
@@ -113,13 +155,22 @@ function SettingsWindow()
         config.data.scream_threshold = sliderElement('Scream Threshold', config.data.talk_threshold, config.data.scream_threshold, 2, 0.001, 3)
         config.data.decay_time = sliderElement('Talk Decay', 0, config.data.decay_time, 1000, 10, 0, 'ms')
 
-        config.data.shake_scale = sliderElement('Shake Scale', 0, config.data.shake_scale, 200, 0.5)
-        config.data.scream_shake_scale = sliderElement('Scream Shake Scale', 0, config.data.scream_shake_scale, 200, 0.5)
-        config.data.shake_lerp_speed = sliderElement('Shake Lerp Speed', 0.01, config.data.shake_lerp_speed, 20, 1)
 
         config.data.blink_chance = sliderElement('Blink Chance', 0, config.data.blink_chance, 100, 1, 0, '%')
         config.data.blink_duration = sliderElement('Blink Duration', 10, config.data.blink_duration, 4000, 10, 0, 'ms')
         config.data.blink_delay = sliderElement('Blink Delay', 10, config.data.blink_delay, 4000, 10, 3, 'ms')
+
+        ui:layoutRow('dynamic', 20, 1)
+        ui:label('Shake Type')
+        ui:layoutRow('dynamic', 30, 1)
+        easeIndex = ui:combobox(easeIndex, easingFunctions)
+        config.data.shake_type = easingFunctions[easeIndex]
+
+        config.data.shake_scale = sliderElement('Shake Scale', 0, config.data.shake_scale, 200, 0.5)
+        config.data.scream_shake_scale = sliderElement('Scream Shake Scale', 0, config.data.scream_shake_scale, 200, 0.5)
+        config.data.shake_lerp_speed = sliderElement('Shake Lerp Speed', 10, config.data.shake_lerp_speed, 2000, 10)
+        config.data.shake_delay = sliderElement('Shake Delay', 0, config.data.shake_delay, 1000, 1)
+
 
         ui:layoutRow('dynamic', 20, 1)
         ui:label('Background Color')
@@ -152,10 +203,14 @@ function getAmplitude()
 end
 
 function updateShake(magnitude)
-    image_x:set(love.math.random(-magnitude + config.data.offsetx, magnitude + config.data.offsetx), { reset = true })
-    image_x:to(config.data.offsetx, { speed = config.data.shake_lerp_speed })
-    image_y:set(love.math.random(-magnitude + config.data.offsety, magnitude + config.data.offsety), { reset = true })
-    image_y:to(config.data.offsety, { speed = config.data.shake_lerp_speed })
+    local t = love.timer.getTime() * 1000
+
+    if t - shake_end_time > config.data.shake_delay then
+        shake_end_time = t + config.data.shake_delay
+        image_pos.x = love.math.random(-magnitude, magnitude) + default_position().x
+        image_pos.y = love.math.random(-magnitude, magnitude) + default_position().y
+        image_tween = tween.new(config.data.shake_lerp_speed, image_pos, default_position(), config.data.shake_type)
+    end
 end
 
 function getFrame(amplitude)
@@ -270,8 +325,10 @@ function love.update(dt)
     -- get current frame
     current_frame = getFrame(getAmplitude())
 
-    -- ease coords
-    soft:update(dt)
+    -- easing
+    if image_tween ~= nil then
+        image_tween:update(dt * 1000) -- update image tween in msec
+    end
 
     -- update ui
     ui:frameBegin()
@@ -288,7 +345,7 @@ end
 
 function love.draw()
     love.graphics.setBackgroundColor(config.data.bg_color.r / 255, config.data.bg_color.g / 255, config.data.bg_color.b / 255)
-    love.graphics.draw(current_frame, image_x:get(), image_y:get(), 0, config.data.zoom, config.data.zoom)
+    love.graphics.draw(current_frame, image_pos.x, image_pos.y, 0, config.data.zoom, config.data.zoom)
     ui:draw()
 end
 
@@ -333,8 +390,9 @@ function love.mousemoved(x, y, dx, dy, istouch)
         config.data.offsetx = config.data.offsetx + dx
         config.data.offsety = config.data.offsety + dy
 
-        image_x:set(config.data.offsetx, { reset = true })
-        image_y:set(config.data.offsety, { reset = true })
+        image_tween = nil
+        image_pos.x = config.data.offsetx
+        image_pos.y = config.data.offsety
     end
 end
 
