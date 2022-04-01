@@ -38,7 +38,7 @@ local dragging = false
 local settings_open = true
 local debug_open = false
 local easeIndex = 0
-
+local easeIndexTable = nil
 local easingFunctions = {
     'linear',
     -- quad
@@ -78,7 +78,7 @@ function love.load()
     image_pos = default_position()
 
     -- inverse index
-    local easeIndexTable = {}
+    easeIndexTable = {}
     for k, v in pairs(easingFunctions) do
         easeIndexTable[v] = k
     end
@@ -163,6 +163,7 @@ function SettingsWindow()
         ui:layoutRow('dynamic', 20, 1)
         ui:label('Shake Type')
         ui:layoutRow('dynamic', 30, 1)
+        easeIndex = easeIndexTable[config.data.shake_type] -- incase we reset or something
         easeIndex = ui:combobox(easeIndex, easingFunctions)
         config.data.shake_type = easingFunctions[easeIndex]
 
