@@ -344,7 +344,7 @@ function love.update(dt)
 end
 
 function love.draw()
-    love.graphics.setBackgroundColor(config.data.bg_color.r / 255, config.data.bg_color.g / 255, config.data.bg_color.b / 255)
+    love.graphics.setBackgroundColor(config.data.bg_color.r / 255, config.data.bg_color.g / 255, config.data.bg_color.b / 255, 0)
     love.graphics.draw(current_frame, image_pos.x, image_pos.y, 0, config.data.zoom, config.data.zoom)
     ui:draw()
 end
