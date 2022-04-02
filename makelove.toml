@@ -3,7 +3,7 @@ name = "PngApp"
 love_files = [
     "::git-ls-tree::",
     "-*/.*",
-    "-./bin/*"
+    "-./lib/*"
 ]
 
 # build for win64, linux, and macos (TODO)
@@ -23,7 +23,7 @@ OriginalFilename = "{name}.exe"
 
 [win64]
 shared_libraries = [
-	"bin/libs/win64/nuklear.dll"
+	"libs/win64/nuklear.dll"
 ]
 
 [linux]
@@ -33,6 +33,6 @@ Categories = "Game;"
 
 [appimage]
 shared_libraries = [
-	"bin/libs/linux-x86_64/nuklear.so"
+	"libs/linux-x86_64/nuklear.so"
 ]
 
