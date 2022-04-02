@@ -1,5 +1,4 @@
 require 'filefix'
-
 local nuklear = require 'nuklear'
 local Collection = require 'lib.lua-collections.collections'
 local binser = require 'lib.binser'
