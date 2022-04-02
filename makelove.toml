@@ -1,0 +1,38 @@
+name = "PngApp"
+
+love_files = [
+    "::git-ls-tree::",
+    "-*/.*",
+    "-./bin"
+]
+
+# build for win64, linux, and macos (TODO)
+default_targets = ["win64", "appimage"]
+
+build_directory = "build"
+
+[windows]
+[windows.exe_metadata]
+FileDescription = "{name} {version}"
+FileVersion = "{version}"
+CompanyName = "Marcus Collins"
+LegalCopyright = ""
+ProductName = "{name}"
+ProductVersion = "{version}"
+OriginalFilename = "{name}.exe"
+
+[win64]
+shared_libraries = [
+	"bin/libs/win64/nuklear.dll"
+]
+
+[linux]
+[linux.desktop_file_metadata]
+Comment = "A PngTuber app made with Love"
+Categories = "Game;"
+
+[appimage]
+shared_libraries = [
+	"bin/libs/linux-x86_64/nuklear.so"
+]
+
