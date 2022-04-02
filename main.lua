@@ -1,8 +1,8 @@
 require 'filefix'
 local nuklear = require 'nuklear'
-local Collection = require 'lib.lua-collections.collections'
-local binser = require 'lib.binser'
-local tween = require 'lib.tween'
+local Collection = require 'ext.lua-collections.collections'
+local binser = require 'ext.binser'
+local tween = require 'ext.tween'
 
 local config = require 'config'
 require 'utility'
@@ -67,11 +67,11 @@ function love.load()
 	ui = nuklear.newUI()
 
     -- load image frames
-    frames.open_closed = love.graphics.newImage("images/eyes_open_mouth_closed.png")
-    frames.open_open = love.graphics.newImage("images/eyes_open_mouth_open.png")
-    frames.closed_closed = love.graphics.newImage("images/eyes_closed_mouth_closed.png")
-    frames.closed_open = love.graphics.newImage("images/eyes_closed_mouth_open.png")
-    frames.scream = love.graphics.newImage("images/scream.png")
+    frames.open_closed = love.graphics.newImage("assets/eyes_open_mouth_closed.png")
+    frames.open_open = love.graphics.newImage("assets/eyes_open_mouth_open.png")
+    frames.closed_closed = love.graphics.newImage("assets/eyes_closed_mouth_closed.png")
+    frames.closed_open = love.graphics.newImage("assets/eyes_closed_mouth_open.png")
+    frames.scream = love.graphics.newImage("assets/scream.png")
 
     microphone = love.audio.getRecordingDevices()[config.data.mic_index]
     microphone:start() -- start listening to mic

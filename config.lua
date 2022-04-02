@@ -1,4 +1,4 @@
-local binser = require 'lib.binser'
+local binser = require 'ext.binser'
 
 require 'utility'
 
