@@ -61,8 +61,14 @@ function default_position()
     }
 end
 
+function update_offsets()
+    image_tween = nil
+    image_pos.x = config.data.offsetx
+    image_pos.y = config.data.offsety
+end
+
 function love.load()
-    config:load('pngapp')
+    config:load()
 
 	ui = nuklear.newUI()
 
@@ -89,25 +95,21 @@ end
 
 function MenuBar()
     if ui:windowBegin('MenuBar', 0, 0, love.graphics.getWidth(), 25, 'background') then
-        ui:layoutRow('static', 20, 30, 2)
+        ui:layoutRow('static', 20, 30, 3)
         if ui:menuBegin('File', 'none', 150, 200) then
             ui:layoutRow('dynamic', 20, 1)
             if ui:button('Save') then
-                config:save('pngapp')
+                config:save()
                 ui:popupClose()
             end
             if ui:button('Undo Changes') then
                 config:undo_changes()
-                image_tween = nil
-                image_pos.x = config.data.offsetx
-                image_pos.y = config.data.offsety
+                update_offsets()
                 ui:popupClose()
             end
             if ui:button('Load Defaults') then
                 config:reset()
-                image_tween = nil
-                image_pos.x = config.data.offsetx
-                image_pos.y = config.data.offsety
+                update_offsets()
                 ui:popupClose()
             end
             if ui:button('Quit') then
@@ -132,6 +134,19 @@ function MenuBar()
             if ui:button(debug_open and 'Hide Debug Menu' or 'Show Debug Menu') then
                 debug_open = not debug_open
                 ui:popupClose()
+            end
+        end
+        ui:menuEnd()
+
+        if ui:menuBegin('Slot', 'none', 150, 250) then
+            ui:layoutRow('dynamic', 20, 1)
+
+            for i = 1, 10, 1 do 
+                if ui:button(string.format('Slot %d', i)) then
+                    config:change_slot(i)
+                    update_offsets()
+                    ui:popupClose()
+                end
             end
         end
         ui:menuEnd()
@@ -392,9 +407,7 @@ function love.mousemoved(x, y, dx, dy, istouch)
         config.data.offsetx = config.data.offsetx + dx
         config.data.offsety = config.data.offsety + dy
 
-        image_tween = nil
-        image_pos.x = config.data.offsetx
-        image_pos.y = config.data.offsety
+        update_offsets()
     end
 end
 

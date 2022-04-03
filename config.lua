@@ -3,7 +3,7 @@ local binser = require 'ext.binser'
 require 'utility'
 
 local config = {
-    extension = 'data',
+    slot = 1,
     data = nil,
     initial = nil
 }
@@ -36,13 +36,17 @@ local default_config = {
 setmetatable(config, config)
 
 -- FileNameWithExtension
-local function fnwe(fn)
-    return string.format('%s.%s', fn, config.extension)
+local function fileForSlot(slot)
+    return string.format('preset%d.bin', slot)
+end
+
+local function currentFile()
+    return fileForSlot(config.slot)
 end
 
 -- load
-function config:load(filename)
-    local file = fnwe(filename)
+function config:load()
+    local file = currentFile()
     local fileInfo = love.filesystem.getInfo(file)
 
     if fileInfo == nil then
@@ -73,9 +77,9 @@ function config:reset()
 end
 
 -- save
-function config:save(filename)
+function config:save()
     local data = binser.serialize(self.data)
-    local file = fnwe(filename)
+    local file = currentFile()
     local success, msg = love.filesystem.write(file, data)
 
     if not success then
@@ -84,6 +88,15 @@ function config:save(filename)
         self.initial = copy_table(self.data) -- store new "initial"
         print(string.format('Saved file as %s', file))
     end
+end
+
+function config:change_slot(index, saveFirst)
+    if saveFirst then
+        self:save()
+    end
+    
+    self.slot = index
+    self:load()
 end
 
 return config
