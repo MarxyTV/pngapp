@@ -305,7 +305,19 @@ function TestWindow()
 end
 
 function love.update(dt)
-    -- get mic data
+    -- check preset selection
+    if love.keyboard.isDown('lctrl') and love.keyboard.isDown('lshift') then
+        for i = 9, 0, -1 do
+            local slot = i
+
+            if slot == 0 then slot = 10 end
+
+            if love.keyboard.isDown(i) and config.slot ~= slot then
+                config:change_slot(slot)
+            end
+        end
+    end
+
     if microphone ~= nil then
         local mic_buffer = microphone:getData()
 
@@ -371,7 +383,7 @@ function love.quit()
 end
 
 function love.keypressed(key, scancode, isrepeat)
-	ui:keypressed(key, scancode, isrepeat)
+    ui:keypressed(key, scancode, isrepeat)
 end
 
 function love.keyreleased(key, scancode)
@@ -412,7 +424,7 @@ function love.mousemoved(x, y, dx, dy, istouch)
 end
 
 function love.textinput(text)
-	ui:textinput(text)
+    ui:textinput(text)
 end
 
 function love.wheelmoved(x, y)
