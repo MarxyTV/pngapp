@@ -1,10 +1,12 @@
 require 'filefix'
+require 'gamepadfix'
 local nuklear = require 'nuklear'
 local Collection = require 'ext.lua-collections.collections'
 local binser = require 'ext.binser'
 local tween = require 'ext.tween'
 
 local config = require 'config'
+local webhook = require 'webhook'
 require 'utility'
 
 local ui = nil
@@ -23,6 +25,7 @@ local image_pos = {
     y = 0
 }
 local image_tween = nil
+local isSleeping = false
 
 -- stuff
 local microphone = nil
@@ -31,7 +34,8 @@ local frames = {
     open_open = nil,
     closed_closed = nil,
     closed_open = nil,
-    scream = nil
+    scream = nil,
+    sleep = nil
 }
 
 -- ui stuff
@@ -54,6 +58,13 @@ local easingFunctions = {
     'outInCubic'
 }
 
+local sleepStart = { x = 0, y = 0 }
+local sleepEnd = { x = 0, y = 0 }
+local sleepDirection = 0
+
+-- debug
+local max_amplitude = 0
+
 function default_position()
     return {
         x = config.data.offsetx or 0,
@@ -67,8 +78,9 @@ function update_offsets()
     image_pos.y = config.data.offsety
 end
 
-function love.load()
+function love.load(args)
     config:load()
+
 
 	ui = nuklear.newUI()
 
@@ -78,8 +90,9 @@ function love.load()
     frames.closed_closed = love.graphics.newImage("assets/eyes_closed_mouth_closed.png")
     frames.closed_open = love.graphics.newImage("assets/eyes_closed_mouth_open.png")
     frames.scream = love.graphics.newImage("assets/scream.png")
+    frames.sleep = love.graphics.newImage("assets/sleep.png")
 
-    microphone = love.audio.getRecordingDevices()[config.data.mic_index]
+    microphone = love.audio.getRecordingDevices()[3]-- config.data.mic_index]
     microphone:start() -- start listening to mic
 
     image_pos = default_position()
@@ -91,6 +104,8 @@ function love.load()
     end
 
     easeIndex = easeIndexTable[config.data.shake_type]
+
+    webhook:start(20501)
 end
 
 function MenuBar()
@@ -141,7 +156,7 @@ function MenuBar()
         if ui:menuBegin('Slot', 'none', 150, 250) then
             ui:layoutRow('dynamic', 20, 1)
 
-            for i = 1, 10, 1 do 
+            for i = 1, 10, 1 do
                 if ui:button(string.format('Slot %d', i)) then
                     config:change_slot(i)
                     update_offsets()
@@ -207,6 +222,7 @@ function DebugWindow()
 
         ui:layoutRow('dynamic', 50, 1)
         ui:label(string.format('Amplitude: %.3f', getAmplitude()))
+        ui:label(string.format('Max Amplitude: %.3f', max_amplitude))
     end
     ui:windowEnd()
 end
@@ -216,7 +232,13 @@ function getAmplitude()
         return 0
     end
 
-    return math.abs(wave_data:min() - wave_data:max())
+    local value = math.abs(wave_data:min() - wave_data:max())
+
+    if debug_open and value > max_amplitude then
+        max_amplitude = value
+    end
+
+    return value
 end
 
 function updateShake(magnitude)
@@ -233,6 +255,10 @@ end
 function getFrame(amplitude)
     local frame = nil
     local lastTalk = timeMS() - talk_end_time
+
+    if isSleeping then
+        return frames.sleep
+    end
 
     -- check for talk decay
     if lastTalk < config.data.decay_time then
@@ -304,7 +330,18 @@ function TestWindow()
     ui:windowEnd()
 end
 
+function startSleepTween(start, ending)
+    image_tween = tween.new(1000, start, ending, 'inOutQuad')
+end
+
 function love.update(dt)
+    -- listen to webhook
+    local message = webhook:update()
+
+    if message == 'sleeptoggle' then
+        toggleSleep()
+    end
+
     -- check preset selection
     if love.keyboard.isDown('lctrl') and love.keyboard.isDown('lshift') then
         for i = 9, 0, -1 do
@@ -355,8 +392,24 @@ function love.update(dt)
     current_frame = getFrame(getAmplitude())
 
     -- easing
+    local completedTween = false
+
     if image_tween ~= nil then
-        image_tween:update(dt * 1000) -- update image tween in msec
+        completedTween = image_tween:update(dt * 1000) -- update image tween in msec
+    end
+
+    if isSleeping and (image_tween == nil or completedTween) then
+        local tmp = {}
+
+        if sleepDirection == 0 then
+            tmp = copy_table(sleepEnd)
+            sleepDirection = 1
+        else
+            tmp = copy_table(sleepStart)
+            sleepDirection = 0
+        end
+
+        startSleepTween(image_pos, tmp)
     end
 
     -- update ui
@@ -379,7 +432,10 @@ function love.draw()
 end
 
 function love.quit()
-    microphone:stop()
+    webhook:stop()
+    if microphone then
+        microphone:stop()
+    end
 end
 
 function love.keypressed(key, scancode, isrepeat)
@@ -393,7 +449,7 @@ end
 function love.mousepressed(x, y, button, istouch, presses)
 	if not ui:mousepressed(x, y, button, istouch, presses) then
         -- start draging if not ui press and right click
-        if button == 2 then
+        if button == 2 and not isSleeping then
             dragging = true
         end
     end
@@ -436,5 +492,29 @@ function love.wheelmoved(x, y)
                 config.data.zoom = 0.1
             end
         end
+    end
+end
+
+function toggleSleep()
+    isSleeping = not isSleeping
+
+    if isSleeping then
+        local tmpPos = default_position()
+        tmpPos.y = tmpPos.y - 20
+        image_pos = default_position()
+        image_pos.y = image_pos.y + 20
+        sleepDirection = 0
+        startSleepTween(image_pos, tmpPos)
+        sleepStart = copy_table(tmpPos)
+        sleepEnd = copy_table(image_pos)
+    else
+        image_tween = nil
+        update_offsets()
+    end
+end
+
+function love.gamepadpressed(joystick, button)
+    if button == 'b' then
+
     end
 end
