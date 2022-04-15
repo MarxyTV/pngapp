@@ -1,44 +1,49 @@
-local ws = require 'ws'
-require('utility')
+local socket = require 'socket'
+require 'utility'
 
 local webhook = {
-    server = nil,
-    channel = nil
+    server = nil
 }
 
 setmetatable(webhook, webhook)
 
 function webhook:start(port)
-    self.server = ws.newServer(port)
-    self.channel = self.server:getChannel("^/websocket/?$")
-    self.server:start()
-    print('Started websocket server on port: ' .. port)
+    if self.server ~= nil then
+        print('Error: tried to start tcp server when server ~= nil')
+        return
+    end
+
+    self.server = socket.try(socket.bind('*', port))
+
+    self.server:settimeout(0)
+
+    local boundIP, boundPort = self.server:getsockname()
+
+    print('Started tcp server on ' .. boundIP .. ':' .. boundPort)
 end
 
 function webhook:update()
-    local ev = self.channel:checkQueue()
+    local client = self.server:accept()
 
-    if ev then
-        if ev.type == 'open' then
-            print('Client connected')
-        elseif ev.type == 'close' then
-            print('Client disconnected')
-        elseif ev.type == 'message' then
-            local msg = ev.message:gsub('[%p%c%s]', '')
-            print('Message: ' .. msg)
-            print('test')
-            self.channel:send(ev.connection, 'received')
-            return msg
+    if client ~= nil then
+        local data, err = client:receive()
+
+        if err then
+            print('TCP Error: ' .. err)
+            return nil
         end
+
+        print('Received: ' .. data)
+        client:close()
+        return data
     end
 
     return nil
 end
 
 function webhook:stop()
-    if self.server then
-        self.server:stop()
-    end
+    self.server:close()
+    print('Stopped tcp server')
 end
 
 return webhook

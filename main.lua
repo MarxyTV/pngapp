@@ -92,7 +92,7 @@ function love.load(args)
     frames.scream = love.graphics.newImage("assets/scream.png")
     frames.sleep = love.graphics.newImage("assets/sleep.png")
 
-    microphone = love.audio.getRecordingDevices()[3]-- config.data.mic_index]
+    microphone = love.audio.getRecordingDevices()[3] or love.audio.getRecordingDevices()[1]-- config.data.mic_index]
     microphone:start() -- start listening to mic
 
     image_pos = default_position()
