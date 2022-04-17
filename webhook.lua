@@ -33,6 +33,8 @@ function webhook:update()
             return nil
         end
 
+        data = data:gsub('[%p%c%s]', '')
+
         print('Received: ' .. data)
         client:close()
         return data
