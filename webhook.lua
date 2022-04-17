@@ -33,7 +33,7 @@ function webhook:update()
             return nil
         end
 
-        data = data:gsub('[%p%c%s]', '')
+        data = data:gsub('[%p%c%s]', '') -- remove escape sequences
 
         print('Received: ' .. data)
         client:close()
