@@ -30,7 +30,7 @@ There are settings to adjust the chance, duration, and after blink delay.
 
 NOTE: If you would like to avoid chroma key in OBS, set "Allow Transparency" in OBS source settings, and set background color to black in the pngapp settings. This is how I personally use it to stream.
 
-You can adjust the background color to make it easier to see while adjusting options and for chroma key-ing in applications like OBS. 
+You can adjust the background color to make it easier to see while adjusting options and for chroma key-ing in applications like OBS.
 
 ## Moving
 
@@ -39,3 +39,19 @@ You can hold right click to drag the image around and use scroll wheel to zoom i
 ## Save/Load
 
 You can save your settings, revert to defaults, and revert to last loaded/saved settings.
+
+
+## Server
+
+windows command
+
+`cmd -C echo {"name":"changeSlot","args":{"slot":1}} | ncat -C localhost 20501`
+
+linux command (bash script)
+
+`echo {"name":"changeSlot","args":{"slot":1}} | netcat localhost 20501`
+
+available commands:
+
+- sleepToggle (ex: `{"name":"sleepToggle"}`)
+- changeSlot (ex: `{"name":"changeSlot","args":{"slot":1}}`)

@@ -4,9 +4,10 @@ local nuklear = require 'nuklear'
 local Collection = require 'ext.lua-collections.collections'
 local binser = require 'ext.binser'
 local tween = require 'ext.tween'
+local Signal = require 'ext.hump.signal'
 
 local config = require 'config'
-local webhook = require 'webhook'
+local server = require 'server'
 require 'utility'
 
 local ui = nil
@@ -108,9 +109,49 @@ function love.load(args)
 
     easeIndex = easeIndexTable[config.data.shake_type]
 
-    webhook:start(20501)
+    server:start(20501)
+
+    -- signal listeners
+    Signal.register('sleepToggle', cmd_sleepToggle)
+    Signal.register('changeSlot', cmd_changeSlots)
 end
 
+-- [[
+--  Commands
+-- ]]
+function cmd_sleepToggle()
+    isSleeping = not isSleeping
+
+    if isSleeping then
+        local tmpPos = default_position()
+        tmpPos.y = tmpPos.y - 20
+        image_pos = default_position()
+        image_pos.y = image_pos.y + 20
+        sleepDirection = 0
+        startSleepTween(image_pos, tmpPos)
+        sleepStart = copy_table(tmpPos)
+        sleepEnd = copy_table(image_pos)
+    else
+        image_tween = nil
+        update_offsets()
+    end
+end
+
+function cmd_changeSlots(args)
+    local slot = args['slot']
+
+    if slot == nil or slot < 0 or slot > 10 then
+        print('cmd_changeSlots: Invalid slot number')
+        return
+    end
+
+    config:change_slot(slot)
+    update_offsets()
+end
+
+-- [[
+--  UI Functions
+-- ]]
 function MenuBar()
     if ui:windowBegin('MenuBar', 0, 0, love.graphics.getWidth(), 25, 'background') then
         ui:layoutRow('static', 20, 30, 4)
@@ -355,12 +396,7 @@ function startSleepTween(start, ending)
 end
 
 function love.update(dt)
-    -- listen to webhook
-    local message = webhook:update()
-
-    if message == 'sleeptoggle' then
-        toggleSleep()
-    end
+    server:update()
 
     -- check preset selection
     if love.keyboard.isDown('lctrl') and love.keyboard.isDown('lshift') then
@@ -452,7 +488,7 @@ function love.draw()
 end
 
 function love.quit()
-    webhook:stop()
+    server:stop()
     if microphone then
         microphone:stop()
     end
@@ -512,24 +548,6 @@ function love.wheelmoved(x, y)
                 config.data.zoom = 0.1
             end
         end
-    end
-end
-
-function toggleSleep()
-    isSleeping = not isSleeping
-
-    if isSleeping then
-        local tmpPos = default_position()
-        tmpPos.y = tmpPos.y - 20
-        image_pos = default_position()
-        image_pos.y = image_pos.y + 20
-        sleepDirection = 0
-        startSleepTween(image_pos, tmpPos)
-        sleepStart = copy_table(tmpPos)
-        sleepEnd = copy_table(image_pos)
-    else
-        image_tween = nil
-        update_offsets()
     end
 end
 
