@@ -92,9 +92,11 @@ function love.load(args)
     frames.scream = love.graphics.newImage("assets/scream.png")
     frames.sleep = love.graphics.newImage("assets/sleep.png")
 
-    microphone = love.audio.getRecordingDevices()[1] -- config.data.mic_index]
-    print(microphone:getName())
-    microphone:start() -- start listening to mic
+    microphone = love.audio.getRecordingDevices()[config.data.mic_index]
+
+    if microphone ~= nil then
+        microphone:start() -- start listening to mic
+    end
 
     image_pos = default_position()
 
@@ -111,7 +113,7 @@ end
 
 function MenuBar()
     if ui:windowBegin('MenuBar', 0, 0, love.graphics.getWidth(), 25, 'background') then
-        ui:layoutRow('static', 20, 30, 3)
+        ui:layoutRow('static', 20, 30, 4)
         if ui:menuBegin('File', 'none', 150, 200) then
             ui:layoutRow('dynamic', 20, 1)
             if ui:button('Save') then
@@ -162,6 +164,23 @@ function MenuBar()
                     config:change_slot(i)
                     update_offsets()
                     ui:popupClose()
+                end
+            end
+        end
+        ui:menuEnd()
+
+        if ui:menuBegin('Mic', 'none', 350, 250) then
+            ui:layoutRow('dynamic', 20, 1)
+            local deviceList = love.audio.getRecordingDevices()
+            for index, inputDevice in ipairs(deviceList) do
+                local labelText = (config.data.mic_index == index and 'X ' or ' ') .. strsplit(inputDevice:getName(), " on ")[2]
+                if ui:button(labelText) then
+                    if microphone then
+                        microphone:stop()
+                    end
+                    config.data.mic_index = index
+                    microphone = deviceList[index]
+                    microphone:start()
                 end
             end
         end
