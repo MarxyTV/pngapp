@@ -43,13 +43,7 @@ You can save your settings, revert to defaults, and revert to last loaded/saved 
 
 ## Server
 
-windows command
-
-`cmd -C echo {"name":"changeSlot","args":{"slot":1}} | ncat -C localhost 20501`
-
-linux command (bash script)
-
-`echo {"name":"changeSlot","args":{"slot":1}} | netcat localhost 20501`
+`echo {"name":"changeSlot","args":{"slot":5}} | curl telnet://localhost:20501`
 
 available commands:
 

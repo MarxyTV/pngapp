@@ -14,12 +14,10 @@ function server:start(port)
         return
     end
 
-    tcpSocket = socket.try(socket.bind('*', port))
-
+    tcpSocket = socket.try(socket.bind('localhost', port))
     tcpSocket:settimeout(0)
 
     local boundIP, boundPort = tcpSocket:getsockname()
-
     print('Started tcp server ' .. boundIP .. ':' .. boundPort)
 end
 
@@ -38,14 +36,9 @@ function server:update()
 
         -- parse the data
 
-        -- data = data:gsub('[%p%c%s]', '') -- remove escape sequences
-
-        print('Received: ' .. data)
+        -- print('Received: ' .. data)
 
         local command = JSON:decode(data)
-
-        print(dump(command))
-
         Signal.emit(command.name, command.args)
     end
 end
