@@ -82,7 +82,6 @@ end
 function love.load(args)
     config:load()
 
-
 	ui = nuklear.newUI()
 
     -- load image frames
