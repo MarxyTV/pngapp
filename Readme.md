@@ -2,9 +2,10 @@
 
 Reactive PNG application made with Love2D game engine.
 
-Currently it supports 5 animation frames.
+Currently it supports 6 animation frames.
 - Eyes Open/Closed with Mouth Open/Closed
 - Scream (for when mic peaks)
+- Sleep (for inactive toggle)
 
 
 ## Talking/Scream threshold

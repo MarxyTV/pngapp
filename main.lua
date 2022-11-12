@@ -1,6 +1,7 @@
 require 'filefix'
 require 'gamepadfix'
 local nuklear = require 'nuklear'
+---@diagnostic disable-next-line: different-requires
 local Collection = require 'ext.lua-collections.collections'
 local binser = require 'ext.binser'
 local tween = require 'ext.tween'
