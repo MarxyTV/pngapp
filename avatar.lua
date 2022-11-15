@@ -1,4 +1,4 @@
-local tween  = require 'ext.tween'
+local tween = require 'ext.tween'
 
 local config = require 'config'
 local audio = require 'audio'

@@ -1,6 +1,6 @@
 local ffi = require("ffi")
 
-ffi.cdef[[
+ffi.cdef [[
 typedef enum
 {
     SDL_FALSE = 0,

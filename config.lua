@@ -94,7 +94,7 @@ function config:change_slot(index, saveFirst)
     if saveFirst then
         self:save()
     end
-    
+
     self.slot = index
     self:load()
 end

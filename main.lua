@@ -1,16 +1,15 @@
-require 'filefix'
-require 'gamepadfix'
 local Signal = require 'ext.hump.signal'
 
-local config = require 'config'
-local server = require 'server'
+require 'filefix'
+require 'gamepadfix'
 require 'utility'
 
-local UI = require 'ui'
 local avatar = require 'avatar'
 local audio = require 'audio'
+local config = require 'config'
+local server = require 'server'
+local UI = require 'ui'
 
--- ui stuff
 local dragging = false
 
 -- command to change selected slot

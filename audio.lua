@@ -19,19 +19,19 @@ function audio:init()
 end
 
 function audio:update(dt)
-   -- update mic data
-   if audio.microphone ~= nil then
-    local mic_buffer = audio.microphone:getData()
+    -- update mic data
+    if audio.microphone ~= nil then
+        local mic_buffer = audio.microphone:getData()
 
-    audio.inputData = collect({})
+        audio.inputData = collect({})
 
-    if mic_buffer ~= nil then
-        -- sample data starts at index 0
-        for i = 0, mic_buffer:getSampleCount() - 1 do
-            audio.inputData:push(mic_buffer:getSample(i))
+        if mic_buffer ~= nil then
+            -- sample data starts at index 0
+            for i = 0, mic_buffer:getSampleCount() - 1 do
+                audio.inputData:push(mic_buffer:getSample(i))
+            end
         end
     end
-end
 end
 
 function audio:shutdown()
