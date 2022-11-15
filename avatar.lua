@@ -124,7 +124,7 @@ function avatar:getFrame(amplitude)
             avatar:updateShake(amplitude * config.data.scream_shake_scale)
         elseif amplitude > config.data.talk_threshold then
             -- talking
-            frame = avatar.do_blink and avatar.rames.closed_open or avatar.frames.open_open
+            frame = avatar.do_blink and avatar.frames.closed_open or avatar.frames.open_open
             avatar.talk_end_time = timeMS() + config.data.decay_time
             avatar.talk_type = 0
             avatar:updateShake(amplitude * config.data.shake_scale)
