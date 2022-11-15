@@ -7,12 +7,10 @@ Currently it supports 6 animation frames.
 - Scream (for when mic peaks)
 - Sleep (for inactive toggle)
 
-
 ## Talking/Scream threshold
 
 The volume thresholds for talking and scream are adjustable.
 You can also set the talk decay. This is how long to wait after talking before resetting to the mouth closed state.
-
 
 ## Shake
 
@@ -41,8 +39,9 @@ You can hold right click to drag the image around and use scroll wheel to zoom i
 
 You can save your settings, revert to defaults, and revert to last loaded/saved settings.
 
-
 ## Server
+
+By default, a tcp server is opened at port `localhost:20501` for listening to remote commands
 
 `echo {"name":"changeSlot","args":{"slot":5}} | curl telnet://localhost:20501`
 
