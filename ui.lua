@@ -1,7 +1,11 @@
 local nuklear = require 'nuklear'
 
+local MenuBar = require 'menus.MenuBar'
+local SettingsMenu = require 'menus.Settings'
+local DebugMenu = require 'menus.Debug'
+
 local ui = {
-    nk = nil
+    nk = nil,
 }
 
 setmetatable(ui, ui)
@@ -13,12 +17,21 @@ function ui:init()
     end
 
     ui.nk = nuklear.newUI()
+
+    MenuBar:init()
+    SettingsMenu:init()
+    DebugMenu:init()
 end
 
-function ui:update(dt, drawFunc)
+function ui:update(dt)
     ui.nk:frameBegin()
 
-    drawFunc(ui.nk)
+    MenuBar:update(ui.nk)
+    SettingsMenu:update(ui.nk)
+
+    if MenuBar.debug_open then
+        DebugMenu:update(ui.nk)
+    end
 
     ui.nk:frameEnd()
 end
@@ -35,19 +48,19 @@ function ui:keypressed(key, scancode, isrepeat)
 end
 
 function ui:keyreleased(key, scancode)
-	ui.nk:keyreleased(key, scancode)
+    ui.nk:keyreleased(key, scancode)
 end
 
 function ui:mousepressed(x, y, button, istouch, presses)
-	return ui.nk:mousepressed(x, y, button, istouch, presses)
+    return ui.nk:mousepressed(x, y, button, istouch, presses)
 end
 
 function ui:mousereleased(x, y, button, istouch, presses)
-	return ui.nk:mousereleased(x, y, button, istouch, presses)
+    return ui.nk:mousereleased(x, y, button, istouch, presses)
 end
 
 function ui:mousemoved(x, y, dx, dy, istouch)
-	return  ui.nk:mousemoved(x, y, dx, dy, istouch)
+    return ui.nk:mousemoved(x, y, dx, dy, istouch)
 end
 
 function ui:textinput(text)
@@ -55,16 +68,7 @@ function ui:textinput(text)
 end
 
 function ui:wheelmoved(x, y)
-	return ui.nk:wheelmoved(x, y)
-end
-
--- utility
-function ui:sliderElement(label, min, current, max, step, decimals, suffix)
-    ui.nk:layoutRow('dynamic', 25, 2)
-    ui.nk:label(label)
-    ui.nk:label(round(current, decimals) .. (suffix or ''), 'right')
-    ui.nk:layoutRow('dynamic', 25, 1)
-    return ui.nk:slider(min, current, max, step)
+    return ui.nk:wheelmoved(x, y)
 end
 
 return ui

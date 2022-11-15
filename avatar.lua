@@ -1,5 +1,7 @@
-local config = require 'config'
 local tween  = require 'ext.tween'
+
+local config = require 'config'
+local audio = require 'audio'
 
 local avatar = {
     -- image frames
@@ -147,7 +149,7 @@ function avatar:init()
     avatar.position = default_position();
 end
 
-function avatar:update(dt, micAmplitude)
+function avatar:update(dt)
     -- check for blinking
     avatar.do_blink = false
 
@@ -169,7 +171,7 @@ function avatar:update(dt, micAmplitude)
     end
 
     -- get current frame
-    avatar.current_frame = avatar:getFrame(micAmplitude)
+    avatar.current_frame = avatar:getFrame(audio:getMicAmplitude())
 
     -- easing
     local completedTween = false

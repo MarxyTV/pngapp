@@ -7,5 +7,5 @@
     "Lua.runtime.version": "LuaJIT",
     "Lua.diagnostics.globals": [
         "love"
-    ]
+    ],
 }
