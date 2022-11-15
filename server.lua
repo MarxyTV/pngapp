@@ -34,12 +34,11 @@ function server:update()
 
         client:close()
 
-        -- parse the data
-
-        -- print('Received: ' .. data)
-
         local command = JSON:decode(data)
-        Signal.emit(command.name, command.args)
+
+        if (command ~= nil) then
+            Signal.emit(command.name, command.args)
+        end
     end
 end
 
