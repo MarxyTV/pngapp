@@ -7,6 +7,12 @@ Currently it supports 6 animation frames.
 - Scream (for when mic peaks)
 - Sleep (for inactive toggle)
 
+## Screenshots
+
+![Default](https://i.imgur.com/Fmj8Jdk.jpg)
+![Scream](https://i.imgur.com/gU48lkt.jpg)
+![GreenScreen](https://i.imgur.com/BbUfE10.jpg)
+
 ## Talking/Scream threshold
 
 The volume thresholds for talking and scream are adjustable.
