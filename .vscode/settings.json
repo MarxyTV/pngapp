@@ -1,0 +1,11 @@
+{
+    "Lua.workspace.library": [
+        "%config.workspace.library%\\lib\\lovr\\api",
+        "${3rd}/love2d/library",
+        "${3rd}/luassert/library"
+    ],
+    "Lua.runtime.version": "LuaJIT",
+    "Lua.diagnostics.globals": [
+        "love"
+    ]
+}

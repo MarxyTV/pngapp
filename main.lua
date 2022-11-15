@@ -1,6 +1,5 @@
 require 'filefix'
 require 'gamepadfix'
-local nuklear = require 'nuklear'
 ---@diagnostic disable-next-line: different-requires
 local Collection = require 'ext.lua-collections.collections'
 local binser = require 'ext.binser'
@@ -11,7 +10,7 @@ local config = require 'config'
 local server = require 'server'
 require 'utility'
 
-local ui = nil
+local UI = require 'ui'
 
 -- tracking
 local talk_type = 0
@@ -83,7 +82,7 @@ end
 function love.load(args)
     config:load()
 
-	ui = nuklear.newUI()
+	UI:init()
 
     -- load image frames
     frames.open_closed = love.graphics.newImage("assets/eyes_open_mouth_closed.png")
@@ -152,7 +151,7 @@ end
 -- [[
 --  UI Functions
 -- ]]
-function MenuBar()
+function MenuBar(ui)
     if ui:windowBegin('MenuBar', 0, 0, love.graphics.getWidth(), 25, 'background') then
         ui:layoutRow('static', 20, 30, 4)
         if ui:menuBegin('File', 'none', 150, 200) then
@@ -231,26 +230,18 @@ function MenuBar()
     ui:windowEnd()
 end
 
-function sliderElement(label, min, current, max, step, decimals, suffix)
-    ui:layoutRow('dynamic', 25, 2)
-    ui:label(label)
-    ui:label(round(current, decimals) .. (suffix or ''), 'right')
-    ui:layoutRow('dynamic', 25, 1)
-    return ui:slider(min, current, max, step)
-end
-
 local cr, cg, cb = 0, 0, 0
 
-function SettingsWindow()
+function SettingsWindow(ui)
     if ui:windowBegin('Settings', 0, 25, 360, love.graphics.getHeight() - 25, 'border', 'scrollbar') then
-        config.data.talk_threshold = sliderElement('Talk Threshold', 0, config.data.talk_threshold, config.data.scream_threshold, 0.001, 3)
-        config.data.scream_threshold = sliderElement('Scream Threshold', config.data.talk_threshold, config.data.scream_threshold, 2, 0.001, 3)
-        config.data.decay_time = sliderElement('Talk Decay', 0, config.data.decay_time, 1000, 10, 0, 'ms')
+        config.data.talk_threshold = UI:sliderElement('Talk Threshold', 0, config.data.talk_threshold, config.data.scream_threshold, 0.001, 3)
+        config.data.scream_threshold = UI:sliderElement('Scream Threshold', config.data.talk_threshold, config.data.scream_threshold, 2, 0.001, 3)
+        config.data.decay_time = UI:sliderElement('Talk Decay', 0, config.data.decay_time, 1000, 10, 0, 'ms')
 
 
-        config.data.blink_chance = sliderElement('Blink Chance', 0, config.data.blink_chance, 100, 1, 0, '%')
-        config.data.blink_duration = sliderElement('Blink Duration', 10, config.data.blink_duration, 4000, 10, 0, 'ms')
-        config.data.blink_delay = sliderElement('Blink Delay', 10, config.data.blink_delay, 4000, 10, 3, 'ms')
+        config.data.blink_chance = UI:sliderElement('Blink Chance', 0, config.data.blink_chance, 100, 1, 0, '%')
+        config.data.blink_duration = UI:sliderElement('Blink Duration', 10, config.data.blink_duration, 4000, 10, 0, 'ms')
+        config.data.blink_delay = UI:sliderElement('Blink Delay', 10, config.data.blink_delay, 4000, 10, 3, 'ms')
 
         ui:layoutRow('dynamic', 20, 1)
         ui:label('Shake Type')
@@ -259,10 +250,10 @@ function SettingsWindow()
         easeIndex = ui:combobox(easeIndex, easingFunctions)
         config.data.shake_type = easingFunctions[easeIndex]
 
-        config.data.shake_scale = sliderElement('Shake Scale', 0, config.data.shake_scale, 200, 0.5)
-        config.data.scream_shake_scale = sliderElement('Scream Shake Scale', 0, config.data.scream_shake_scale, 200, 0.5)
-        config.data.shake_lerp_speed = sliderElement('Shake Lerp Speed', 10, config.data.shake_lerp_speed, 2000, 10)
-        config.data.shake_delay = sliderElement('Shake Delay', 0, config.data.shake_delay, 1000, 1)
+        config.data.shake_scale = UI:sliderElement('Shake Scale', 0, config.data.shake_scale, 200, 0.5)
+        config.data.scream_shake_scale = UI:sliderElement('Scream Shake Scale', 0, config.data.scream_shake_scale, 200, 0.5)
+        config.data.shake_lerp_speed = UI:sliderElement('Shake Lerp Speed', 10, config.data.shake_lerp_speed, 2000, 10)
+        config.data.shake_delay = UI:sliderElement('Shake Delay', 0, config.data.shake_delay, 1000, 1)
 
 
         ui:layoutRow('dynamic', 20, 1)
@@ -277,7 +268,7 @@ function SettingsWindow()
     ui:windowEnd()
 end
 
-function DebugWindow()
+function DebugWindow(ui)
     if ui:windowBegin('Debug', 360, 25, 200, 200,
             'border', 'title', 'movable', 'scalable') then
 
@@ -369,7 +360,7 @@ end
 
 local combo = {value = 1, items = {'A', 'B', 'C'}}
 
-function TestWindow()
+function TestWindow(ui)
     if ui:windowBegin('Simple Example', 100, 100, 200, 160,
 			'border', 'title', 'movable') then
 		ui:layoutRow('dynamic', 30, 1)
@@ -469,22 +460,20 @@ function love.update(dt)
     end
 
     -- update ui
-    ui:frameBegin()
-
-    MenuBar()
-    SettingsWindow()
-
-    if debug_open then
-        DebugWindow()
-    end
-
-	ui:frameEnd()
+    UI:update(dt, function (ui)
+        MenuBar(ui)
+        SettingsWindow(ui)
+    
+        if debug_open then
+            DebugWindow(ui)
+        end
+    end)
 end
 
 function love.draw()
     love.graphics.setBackgroundColor(config.data.bg_color.r / 255, config.data.bg_color.g / 255, config.data.bg_color.b / 255, 0)
     love.graphics.draw(current_frame, image_pos.x, image_pos.y, 0, config.data.zoom, config.data.zoom)
-    ui:draw()
+    UI:draw()
 end
 
 function love.quit()
@@ -495,15 +484,15 @@ function love.quit()
 end
 
 function love.keypressed(key, scancode, isrepeat)
-    ui:keypressed(key, scancode, isrepeat)
+    UI:keypressed(key, scancode, isrepeat)
 end
 
 function love.keyreleased(key, scancode)
-	ui:keyreleased(key, scancode)
+	UI:keyreleased(key, scancode)
 end
 
 function love.mousepressed(x, y, button, istouch, presses)
-	if not ui:mousepressed(x, y, button, istouch, presses) then
+	if not UI:mousepressed(x, y, button, istouch, presses) then
         -- start draging if not ui press and right click
         if button == 2 and not isSleeping then
             dragging = true
@@ -512,7 +501,7 @@ function love.mousepressed(x, y, button, istouch, presses)
 end
 
 function love.mousereleased(x, y, button, istouch, presses)
-	if not ui:mousereleased(x, y, button, istouch, presses) then
+	if not UI:mousereleased(x, y, button, istouch, presses) then
     end
 
     -- stop dragging on right click release
@@ -523,7 +512,7 @@ function love.mousereleased(x, y, button, istouch, presses)
 end
 
 function love.mousemoved(x, y, dx, dy, istouch)
-	if not ui:mousemoved(x, y, dx, dy, istouch) then
+	if not UI:mousemoved(x, y, dx, dy, istouch) then
     end
 
     -- if not clicked on menu, drag menu
@@ -536,11 +525,11 @@ function love.mousemoved(x, y, dx, dy, istouch)
 end
 
 function love.textinput(text)
-    ui:textinput(text)
+    UI:textinput(text)
 end
 
 function love.wheelmoved(x, y)
-	if not ui:wheelmoved(x, y) then
+	if not UI:wheelmoved(x, y) then
         if y ~= 0 then
             config.data.zoom = config.data.zoom + (y * 0.1)
 
