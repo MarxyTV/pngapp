@@ -25,7 +25,8 @@ local function new()
 end
 
 function i18n:load(file)
-	if not love.filesystem.isFile(file) then
+	local fileInfo = love.filesystem.getInfo(file)
+	if fileInfo.type ~= "file" then
 		return false
 	end
 	local locale
