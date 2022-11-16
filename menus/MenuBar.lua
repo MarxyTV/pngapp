@@ -1,6 +1,7 @@
 local config = require 'config'
 local avatar = require 'avatar'
 local audio = require 'audio'
+local lang = require 'lang'
 
 local MenuBar = {
     settings_open = true,
@@ -15,31 +16,31 @@ end
 function MenuBar:update(ui)
     if ui:windowBegin('MenuBar', 0, 0, love.graphics.getWidth(), 25, 'background') then
         ui:layoutRow('static', 20, 30, 4)
-        if ui:menuBegin('File', 'none', 150, 200) then
+        if ui:menuBegin(lang('ui/file'), 'none', 150, 200) then
             ui:layoutRow('dynamic', 20, 1)
-            if ui:button('Save') then
+            if ui:button(lang('ui/save')) then
                 config:save()
                 ui:popupClose()
             end
-            if ui:button('Undo Changes') then
+            if ui:button(lang('ui/undo')) then
                 config:undo_changes()
                 avatar:update_offsets()
                 ui:popupClose()
             end
-            if ui:button('Load Defaults') then
+            if ui:button(lang('ui/defaults')) then
                 config:reset()
                 avatar:update_offsets()
                 ui:popupClose()
             end
-            if ui:button('Quit') then
+            if ui:button(lang('ui/quit')) then
                 love.event.quit()
             end
         end
         ui:menuEnd()
 
-        if ui:menuBegin('View', 'none', 150, 200) then
+        if ui:menuBegin(lang('ui/view'), 'none', 150, 200) then
             ui:layoutRow('dynamic', 20, 1)
-            if ui:button(MenuBar.settings_open and 'Hide Settings' or 'Show Settings') then
+            if ui:button(MenuBar.settings_open and lang('ui/hidesettings') or lang('ui/showsettings')) then
                 MenuBar.settings_open = not MenuBar.settings_open
 
                 if MenuBar.settings_open then
@@ -50,18 +51,18 @@ function MenuBar:update(ui)
                 ui:popupClose()
             end
 
-            if ui:button(MenuBar.debug_open and 'Hide Debug Menu' or 'Show Debug Menu') then
+            if ui:button(MenuBar.debug_open and lang('ui/hidedebug') or lang('ui/showdebug')) then
                 MenuBar.debug_open = not MenuBar.debug_open
                 ui:popupClose()
             end
         end
         ui:menuEnd()
 
-        if ui:menuBegin('Slot', 'none', 150, 250) then
+        if ui:menuBegin(lang('ui/slot'), 'none', 150, 250) then
             ui:layoutRow('dynamic', 20, 1)
 
             for i = 1, 10, 1 do
-                if ui:button(string.format('Slot %d', i)) then
+                if ui:button(string.format(lang('ui/slot') .. ' %d', i)) then
                     config:change_slot(i)
                     avatar:update_offsets()
                     ui:popupClose()
@@ -70,7 +71,7 @@ function MenuBar:update(ui)
         end
         ui:menuEnd()
 
-        if ui:menuBegin('Mic', 'none', 350, 250) then
+        if ui:menuBegin(lang('ui/mic'), 'none', 350, 250) then
             ui:layoutRow('dynamic', 20, 1)
             local deviceList = love.audio.getRecordingDevices()
             for index, inputDevice in ipairs(deviceList) do

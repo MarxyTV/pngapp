@@ -9,6 +9,7 @@ local audio = require 'audio'
 local config = require 'config'
 local server = require 'server'
 local UI = require 'ui'
+local lang = require 'lang'
 
 local dragging = false
 
@@ -28,6 +29,7 @@ end
 -- entry point
 function love.load(args)
     config:load()
+    lang:init()
     UI:init()
     avatar:init()
     audio:init()
