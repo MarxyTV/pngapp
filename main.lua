@@ -30,9 +30,9 @@ end
 function love.load(args)
     config:load()
     lang:init()
-    UI:init()
     avatar:init()
     audio:init()
+    UI:init()
 
     -- start websocket server
     server:start(20501)

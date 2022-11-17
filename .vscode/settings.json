@@ -8,4 +8,5 @@
     "Lua.diagnostics.globals": [
         "love"
     ],
+    "Lua.workspace.checkThirdParty": false,
 }

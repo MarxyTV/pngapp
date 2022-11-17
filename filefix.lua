@@ -18,3 +18,5 @@ addPath(love.filesystem.getAppdataDirectory())
 addPath(love.filesystem.getUserDirectory())
 addPath(love.filesystem.getSourceBaseDirectory())
 addPath(arg[1])
+
+love.filesystem.setRequirePath(love.filesystem.getRequirePath() .. ';ext/?.lua')

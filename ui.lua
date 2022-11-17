@@ -3,6 +3,7 @@ local nuklear = require 'nuklear'
 local MenuBar = require 'menus.MenuBar'
 local SettingsMenu = require 'menus.Settings'
 local DebugMenu = require 'menus.Debug'
+local ImageSelect = require 'menus.ImageSelect'
 
 local ui = {
     nk = nil,
@@ -21,16 +22,22 @@ function ui:init()
     MenuBar:init()
     SettingsMenu:init()
     DebugMenu:init()
+    ImageSelect:init()
 end
 
 function ui:update(dt)
     ui.nk:frameBegin()
 
     MenuBar:update(ui.nk)
-    SettingsMenu:update(ui.nk)
 
     if MenuBar.debug_open then
         DebugMenu:update(ui.nk)
+    end
+
+    SettingsMenu:update(ui.nk)
+
+    if SettingsMenu.openImageSelect then
+        ImageSelect:update(ui.nk)
     end
 
     ui.nk:frameEnd()

@@ -30,6 +30,14 @@ local default_config = {
         r = 0,
         g = 255,
         b = 0
+    },
+    images = {
+        open_closed = nil,
+        open_open = nil,
+        closed_closed = nil,
+        closed_open = nil,
+        scream = nil,
+        sleep = nil
     }
 }
 
@@ -97,6 +105,20 @@ function config:change_slot(index, saveFirst)
 
     self.slot = index
     self:load()
+end
+
+function config:get_image(key)
+    if self.data.images == nil then
+        self.data.images = {}
+    elseif self.data.images[key] ~= nil then
+        return love.graphics.newImage(self.data.images[key])
+    end
+
+    return nil
+end
+
+function config:set_image(key, path)
+    self.data.images[key] = path
 end
 
 return config

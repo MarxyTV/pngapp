@@ -140,13 +140,17 @@ function avatar:getFrame(amplitude)
 end
 
 function avatar:init()
-    avatar.frames.open_closed = love.graphics.newImage("assets/eyes_open_mouth_closed.png")
-    avatar.frames.open_open = love.graphics.newImage("assets/eyes_open_mouth_open.png")
-    avatar.frames.closed_closed = love.graphics.newImage("assets/eyes_closed_mouth_closed.png")
-    avatar.frames.closed_open = love.graphics.newImage("assets/eyes_closed_mouth_open.png")
-    avatar.frames.scream = love.graphics.newImage("assets/scream.png")
-    avatar.frames.sleep = love.graphics.newImage("assets/sleep.png")
+    avatar.frames.open_closed = config:get_image('open_closed')
+    avatar.frames.open_open = config:get_image('open_open')
+    avatar.frames.closed_closed = config:get_image('closed_closed')
+    avatar.frames.closed_open = config:get_image('closed_open')
+    avatar.frames.scream = config:get_image('scream')
+    avatar.frames.sleep = config:get_image('sleep')
     avatar.position = default_position();
+end
+
+function avatar:reload_frame(key)
+    avatar.frames[key] = config:get_image(key)
 end
 
 function avatar:update(dt)
@@ -197,12 +201,14 @@ function avatar:update(dt)
 end
 
 function avatar:draw()
-    love.graphics.draw(avatar.current_frame,
-        avatar.position.x,
-        avatar.position.y,
-        0,
-        config.data.zoom,
-        config.data.zoom)
+    if avatar.current_frame ~= nil then
+        love.graphics.draw(avatar.current_frame,
+            avatar.position.x,
+            avatar.position.y,
+            0,
+            config.data.zoom,
+            config.data.zoom)
+    end
 end
 
 function avatar:shutdown()

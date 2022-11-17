@@ -32,5 +32,8 @@ return {
         ["ui/red"] = { text = "Red" },
         ["ui/green"] = { text = "Green" },
         ["ui/blue"] = { text = "Blue" },
+        -- image select
+        ["ui/refresh"] = { text = "Refresh" },
+        ["ui/openfolder"] = { text = "Open Folder" },
     }
 }
