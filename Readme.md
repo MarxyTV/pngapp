@@ -3,7 +3,7 @@
 Reactive PNG application made with Love2D game engine.
 
 Currently it supports 6 animation frames.
-- Eyes Open/Closed with Mouth Open/Closed
+- Eyes Open/Closed with Mouth Open/Closed (blinking)
 - Scream (for when mic peaks)
 - Sleep (for inactive toggle)
 
@@ -12,6 +12,20 @@ Currently it supports 6 animation frames.
 ![Default](https://i.imgur.com/Fmj8Jdk.jpg)
 ![Scream](https://i.imgur.com/gU48lkt.jpg)
 ![GreenScreen](https://i.imgur.com/BbUfE10.jpg)
+
+## Frames
+
+The images you use for frames must be in `SAVE_DIR/images`.
+Select a frame to open the image selection menu. 
+There is a button to open this folder in your file manager.
+
+Windows: `C:\Users\<user>\AppData\Roaming\LOVE\pngapp\images`
+Linux: `/home/<user>/.local/share/love/pngapp/images`
+
+## Language Support
+
+Currently only has english translations. (Feel free to contribute more)
+UI to select language WIP.
 
 ## Talking/Scream threshold
 
