@@ -32,6 +32,13 @@ return {
         ["ui/red"] = { text = "Red" },
         ["ui/green"] = { text = "Green" },
         ["ui/blue"] = { text = "Blue" },
+        ["ui/talkingframes"] = { text = "Talk Settings"},
+        ["ui/blinkingframes"] = { text = "Talk Settings"},
+        ["ui/extraframes"] = { text = "Talk Settings"},
+        ["ui/talksettings"] = { text = "Talk Settings"},
+        ["ui/blinksettings"] = { text = "Blink Settings"},
+        ["ui/shakesettings"] = { text = "Shake Settings"},
+        ["ui/bgsettings"] = { text = "Background Settings"},
         -- image select
         ["ui/refresh"] = { text = "Refresh" },
         ["ui/openfolder"] = { text = "Open Folder" },

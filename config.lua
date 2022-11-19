@@ -10,7 +10,9 @@ local config = {
 
 local default_config = {
     -- bound settings
+    talk_enabled = true,
     talk_threshold = 0.045,
+    scream_enabled = true,
     scream_threshold = 0.47,
     decay_time = 250,
     shake_scale = 15.0,
@@ -18,6 +20,7 @@ local default_config = {
     shake_lerp_speed = 500,
     shake_delay = 50,
     shake_type = 'linear',
+    blink_enabled = true,
     blink_chance = 25,
     blink_duration = 35,
     blink_delay = 250,
