@@ -1,0 +1,51 @@
+name: continuous-integration
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        path: main
+        submodules: true
+    - name: Update
+      run: sudo apt-get update
+    - name: Install Dependencies
+      run: sudo apt-get install --assume-yes wine-stable wine64 python3-pip
+    # If you just want to use the official versions on PyPI, remove the checkout and `pip3 install makelove` instead
+    - name: Checkout makelove
+      uses: actions/checkout@v2
+      with:
+        repository: pfirsich/makelove
+        path: makelove
+    - name: Install makelove
+      run:
+        pip3 install ./makelove
+    - name: Build
+      run: python3 -m makelove
+    # I have this step, so I don't need to hardcode the project name in the upload-artifact steps below
+    # Sadly all of these artifacts can only be downloaded as a zip, which means that some of them will be double-zipped!
+    # This is currently a limitation of GitHub Actions: https://github.com/actions/upload-artifact/issues/3
+    # You could adapt these actions to unzip the zips first, but don't do that with the mac zip, because
+    # the GitHub Action zipping will not preserve symlinks which would effectively break the .app!
+    - name: Prepare Artifact Names
+      run: |
+        echo "::set-env name=ARTIFACT_NAME_LOVE::$(ls build/love | head -n1)"
+        echo "::set-env name=ARTIFACT_NAME_APPIMAGE::$(ls build/appimage | head -n1)"
+        echo "::set-env name=ARTIFACT_NAME_WIN64::$(ls build/win64 | head -n1)"
+    - name: Artifact (love)
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.ARTIFACT_NAME_LOVE }}
+        path: build/love/${{ env.ARTIFACT_NAME_LOVE }}
+    - name: Artifact (AppImage)
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.ARTIFACT_NAME_APPIMAGE }}
+        path: build/appimage/${{ env.ARTIFACT_NAME_APPIMAGE }}
+    - name: Artifact (Win64)
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.ARTIFACT_NAME_WIN64 }}
+        path: build/win64/${{ env.ARTIFACT_NAME_WIN64 }}

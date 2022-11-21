@@ -3,13 +3,17 @@ name = "PngApp"
 love_files = [
     "::git-ls-tree::",
     "-*/.*",
-    "-./lib/*"
+    "-./libs/*"
 ]
 
 # build for win64, linux, and macos (TODO)
 default_targets = ["win64", "appimage"]
 
 build_directory = "build"
+
+[archive_files]
+"Readme.md" = "Readme.md"
+"LICENSE" = "LICENSE"
 
 [windows]
 [windows.exe_metadata]
