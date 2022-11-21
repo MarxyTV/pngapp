@@ -25,6 +25,7 @@ local default_config = {
     blink_chance = 25,
     blink_duration = 35,
     blink_delay = 250,
+    sleep_lerp_speed = 1000,
     -- stuff
     offsetx = 0,
     offsety = 0,
@@ -83,6 +84,7 @@ function config:load()
     self:fixValue('scream_enabled', true)
     self:fixValue('shake_enabled', true)
     self:fixValue('blink_enabled', true)
+    self:fixValue('sleep_lerp_speed', 1000)
     --#endregion Update old config
     
     print(string.format('Loaded file %s', file))

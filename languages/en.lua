@@ -58,6 +58,10 @@ return {
         ["ui/blinkenabled"] = { text = "Blink Enabled"},
         ["ui/shakeenabled"] = { text = "Shake Enabled"},
 
+        ["ui/misc"] = { text = "Misc" },
+        ["ui/sleeptime"] = { text = "Sleep Bounce Time" },
+        ["ui/togglesleep"] = { text = "Toggle Sleep" },
+
         -- image select
         ["ui/clear"] = { text = "Clear" },
         ["ui/refresh"] = { text = "Refresh" },

@@ -1,4 +1,4 @@
-function sliderElement(ui, label, min, current, max, step, decimals, suffix)
+function SliderElement(ui, label, min, current, max, step, decimals, suffix)
     ui:layoutRow('dynamic', 25, 2)
     ui:label(label)
     ui:label(round(current, decimals) .. (suffix or ''), 'right')

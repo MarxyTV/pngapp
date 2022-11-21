@@ -94,22 +94,22 @@ function SettingsMenu:update(ui)
         end
 
         if ui:treePush('tab', lang('ui/talksettings'), nil, 'expanded') then
-            config.data.talk_threshold = sliderElement(ui, lang('ui/talkthreshold'), 0, config.data.talk_threshold,
+            config.data.talk_threshold = SliderElement(ui, lang('ui/talkthreshold'), 0, config.data.talk_threshold,
                 config.data.scream_threshold, 0.001, 3)
-            config.data.scream_threshold = sliderElement(ui, lang('ui/screamthreshold'), config.data.talk_threshold,
+            config.data.scream_threshold = SliderElement(ui, lang('ui/screamthreshold'), config.data.talk_threshold,
                 config.data.scream_threshold, 2, 0.001, 3)
-            config.data.decay_time = sliderElement(ui, lang('ui/talkdecay'), 0, config.data.decay_time, 1000, 10, 0, 'ms')
+            config.data.decay_time = SliderElement(ui, lang('ui/talkdecay'), 0, config.data.decay_time, 1000, 10, 0, 'ms')
             config.data.talk_enabled = ui:checkbox(lang('ui/talkenabled'), config.data.talk_enabled)
             config.data.scream_enabled = ui:checkbox(lang('ui/screamenabled'), config.data.scream_enabled)
             ui:treePop()
         end
 
         if ui:treePush('tab', lang('ui/blinksettings'), nil, 'expanded') then
-            config.data.blink_chance = sliderElement(ui, lang('ui/blinkchance'), 0, config.data.blink_chance, 100, 1, 0,
+            config.data.blink_chance = SliderElement(ui, lang('ui/blinkchance'), 0, config.data.blink_chance, 100, 1, 0,
                 '%')
-            config.data.blink_duration = sliderElement(ui, lang('ui/blinkduration'), 10, config.data.blink_duration, 4000
+            config.data.blink_duration = SliderElement(ui, lang('ui/blinkduration'), 10, config.data.blink_duration, 4000
                 , 10, 0, 'ms')
-            config.data.blink_delay = sliderElement(ui, lang('ui/blinkdelay'), 10, config.data.blink_delay, 4000, 10, 3,
+            config.data.blink_delay = SliderElement(ui, lang('ui/blinkdelay'), 10, config.data.blink_delay, 4000, 10, 3,
                 'ms')
             config.data.blink_enabled = ui:checkbox(lang('ui/blinkenabled'), config.data.blink_enabled)
             ui:treePop()
@@ -122,13 +122,22 @@ function SettingsMenu:update(ui)
             self.easeIndex = self.easeIndexTable[config.data.shake_type] -- incase we reset or something
             self.easeIndex = ui:combobox(self.easeIndex, self.easingFunctions)
             config.data.shake_type = self.easingFunctions[self.easeIndex]
-            config.data.shake_scale = sliderElement(ui, lang('ui/shakescale'), 0, config.data.shake_scale, 200, 0.5)
-            config.data.scream_shake_scale = sliderElement(ui, lang('ui/shakescreamscale'), 0,
+            config.data.shake_scale = SliderElement(ui, lang('ui/shakescale'), 0, config.data.shake_scale, 200, 0.5)
+            config.data.scream_shake_scale = SliderElement(ui, lang('ui/shakescreamscale'), 0,
                 config.data.scream_shake_scale, 200, 0.5)
-            config.data.shake_lerp_speed = sliderElement(ui, lang('ui/shakelerpspeed'), 10, config.data.shake_lerp_speed
-                , 2000, 10)
-            config.data.shake_delay = sliderElement(ui, lang('ui/shakedelay'), 0, config.data.shake_delay, 1000, 1)
+            config.data.shake_lerp_speed = SliderElement(ui, lang('ui/shakelerpspeed'), 10,
+                config.data.shake_lerp_speed, 2000, 10)
+            config.data.shake_delay = SliderElement(ui, lang('ui/shakedelay'), 0, config.data.shake_delay, 1000, 1)
             config.data.shake_enabled = ui:checkbox(lang('ui/shakeenabled'), config.data.shake_enabled)
+            ui:treePop()
+        end
+
+        if ui:treePush('tab', lang('ui/misc'), nil, 'expanded') then
+            config.data.sleep_lerp_speed = SliderElement(ui, lang('ui/sleeptime'), 10,
+                config.data.sleep_lerp_speed, 2000, 10)
+            if ui:button(lang('ui/togglesleep')) then
+                avatar:sleepToggle()
+            end
             ui:treePop()
         end
 

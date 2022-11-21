@@ -68,7 +68,7 @@ function avatar:sleepToggle()
 end
 
 function avatar:startSleep(endPosition)
-    self.tween = tween.new(1000, self.position, endPosition, 'inOutQuad')
+    self.tween = tween.new(config.data.sleep_lerp_speed, self.position, endPosition, 'inOutQuad')
 end
 
 function avatar:updateShake(mag)
