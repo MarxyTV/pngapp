@@ -20,6 +20,8 @@ return {
 
         ["ui/mic"] = { text = "Mic" },
 
+        ["ui/language"] = { text = "Language" },
+
         -- settings
         ["ui/mouthclosed"] = { text = "Mouth Closed" },
         ["ui/mouthopened"] = { text = "Mouth Opened" },

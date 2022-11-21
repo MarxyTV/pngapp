@@ -16,7 +16,7 @@ end
 
 function MenuBar:update(ui)
     if ui:windowBegin('MenuBar', 0, 0, love.graphics.getWidth(), 25, 'background') then
-        ui:layoutRow('static', 20, 30, 4)
+        ui:layoutRow('static', 20, 30, 5)
         if ui:menuBegin(lang('ui/file'), 'none', 150, 200) then
             ui:layoutRow('dynamic', 20, 1)
             if ui:button(lang('ui/save')) then
@@ -86,6 +86,16 @@ function MenuBar:update(ui)
                 if ui:button(labelText) then
                     config.data.mic_index = index
                     audio:setMicrophone(inputDevice)
+                end
+            end
+        end
+        ui:menuEnd()
+
+        if ui:menuBegin(lang('ui/language'), 'none', 150, 200) then
+            ui:layoutRow('dynamic', 20, 1)
+            for _, locale in ipairs(lang:get_locales()) do
+                if ui:button(locale) then
+                    lang:set_locale(locale)
                 end
             end
         end
