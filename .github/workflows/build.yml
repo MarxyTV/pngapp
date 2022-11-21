@@ -31,9 +31,9 @@ jobs:
     # the GitHub Action zipping will not preserve symlinks which would effectively break the .app!
     - name: Prepare Artifact Names
       run: |
-        echo "::set-env name=ARTIFACT_NAME_LOVE::$(ls main/build/love | head -n1)"
-        echo "::set-env name=ARTIFACT_NAME_APPIMAGE::$(ls main/build/appimage | head -n1)"
-        echo "::set-env name=ARTIFACT_NAME_WIN64::$(ls main/build/win64 | head -n1)"
+        echo "ARTIFACT_NAME_LOVE=$(ls main/build/love | head -n1)" >> $GITHUB_ENV
+        echo "ARTIFACT_NAME_APPIMAGE=$(ls main/build/appimage | head -n1)" >> $GITHUB_ENV
+        echo "ARTIFACT_NAME_WIN64=$(ls main/build/win64 | head -n1)" >> $GITHUB_ENV
     - name: Artifact (love)
       uses: actions/upload-artifact@v2
       with:
