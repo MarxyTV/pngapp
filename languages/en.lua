@@ -60,6 +60,7 @@ return {
 
         ["ui/misc"] = { text = "Misc" },
         ["ui/sleeptime"] = { text = "Sleep Bounce Time" },
+        ["ui/sleepdistance"] = { text = "Sleep Distance" },
         ["ui/togglesleep"] = { text = "Toggle Sleep" },
 
         -- image select

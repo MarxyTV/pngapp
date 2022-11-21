@@ -26,6 +26,7 @@ local default_config = {
     blink_duration = 35,
     blink_delay = 250,
     sleep_lerp_speed = 1000,
+    sleep_distance = 20,
     -- stuff
     offsetx = 0,
     offsety = 0,

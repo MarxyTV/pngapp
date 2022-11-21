@@ -54,9 +54,9 @@ function avatar:sleepToggle()
 
     if self.isSleeping then
         local tmpPos = default_position()
-        tmpPos.y = tmpPos.y - 20
+        tmpPos.y = tmpPos.y - config.data.sleep_distance
         self.position = default_position()
-        self.position.y = self.position.y + 20
+        self.position.y = self.position.y + config.data.sleep_distance
         self.sleepDirection = 0
         self:startSleep(tmpPos)
         self.sleepStart = copy_table(tmpPos)

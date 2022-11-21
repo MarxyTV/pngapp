@@ -135,6 +135,8 @@ function SettingsMenu:update(ui)
         if ui:treePush('tab', lang('ui/misc'), nil, 'expanded') then
             config.data.sleep_lerp_speed = SliderElement(ui, lang('ui/sleeptime'), 10,
                 config.data.sleep_lerp_speed, 2000, 10)
+            config.data.sleep_distance = SliderElement(ui, lang('ui/sleepdistance'), 0,
+                config.data.sleep_distance, 500, 5)
             if ui:button(lang('ui/togglesleep')) then
                 avatar:sleepToggle()
             end
