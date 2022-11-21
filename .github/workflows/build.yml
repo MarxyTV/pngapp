@@ -5,7 +5,7 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@main
       with:
         path: main
         submodules: true
@@ -15,7 +15,7 @@ jobs:
       run: sudo apt-get install --assume-yes wine-stable wine64 python3-pip
     # If you just want to use the official versions on PyPI, remove the checkout and `pip3 install makelove` instead
     - name: Checkout makelove
-      uses: actions/checkout@v2
+      uses: actions/checkout@main
       with:
         repository: pfirsich/makelove
         path: makelove
@@ -35,17 +35,17 @@ jobs:
         echo "ARTIFACT_NAME_APPIMAGE=$(ls main/build/appimage | head -n1)" >> $GITHUB_ENV
         echo "ARTIFACT_NAME_WIN64=$(ls main/build/win64 | head -n1)" >> $GITHUB_ENV
     - name: Artifact (love)
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@main
       with:
         name: ${{ env.ARTIFACT_NAME_LOVE }}
         path: main/build/love/${{ env.ARTIFACT_NAME_LOVE }}
     - name: Artifact (AppImage)
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@main
       with:
         name: ${{ env.ARTIFACT_NAME_APPIMAGE }}
         path: main/build/appimage/${{ env.ARTIFACT_NAME_APPIMAGE }}
     - name: Artifact (Win64)
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@main
       with:
         name: ${{ env.ARTIFACT_NAME_WIN64 }}
         path: main/build/win64/${{ env.ARTIFACT_NAME_WIN64 }}
