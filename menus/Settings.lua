@@ -85,7 +85,7 @@ function SettingsMenu:update(ui)
         if ui:treePush('tab', lang('ui/extraframes'), nil, 'collapsed') then
             ui:layoutRow('dynamic', 150, cols)
             self:drawImage(ui, 'scream')
-            self:drawImage(ui, 'sleeping')
+            self:drawImage(ui, 'sleep')
 
             ui:layoutRow('dynamic', 20, cols)
             ui:label(lang('ui/scream'))
