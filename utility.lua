@@ -60,3 +60,8 @@ function strsplit(str, pat, limit)
 
   return t
 end
+
+function GetBaseFilename(path)
+  local start, finish = path:find('[%w%s!-={-|]+[_%.].+')
+  return path:sub(start, #path)
+end

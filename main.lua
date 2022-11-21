@@ -138,7 +138,36 @@ function love.wheelmoved(x, y)
 end
 
 function love.gamepadpressed(joystick, button)
-    if button == 'b' then
+end
 
+function love.filedropped(file)
+    local supported = {
+        "jpg",
+        "jpeg",
+        "png",
+        "bmp",
+        "tga",
+        "hdr",
+        "pic",
+        "exr"
+    }
+    local ext = file:getExtension()
+
+    for _, value in ipairs(supported) do
+        print(value)
+        if ext == value then
+            file:open("r")
+            local data = file:read()
+            file:close()
+            local fileName = GetBaseFilename(file:getFilename())
+            local newFile = love.filesystem.newFile('images/' .. fileName)
+            newFile:open('w')
+            newFile:write(data)
+            newFile:flush()
+            newFile:close()
+            return
+        end
     end
+
+    print('Unsupported file type ' .. ext)
 end
