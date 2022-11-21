@@ -23,7 +23,7 @@ jobs:
       run:
         pip3 install ./makelove
     - name: Build
-      run: python3 -m makelove
+      run: cd main && python3 -m makelove
     # I have this step, so I don't need to hardcode the project name in the upload-artifact steps below
     # Sadly all of these artifacts can only be downloaded as a zip, which means that some of them will be double-zipped!
     # This is currently a limitation of GitHub Actions: https://github.com/actions/upload-artifact/issues/3
@@ -31,21 +31,21 @@ jobs:
     # the GitHub Action zipping will not preserve symlinks which would effectively break the .app!
     - name: Prepare Artifact Names
       run: |
-        echo "::set-env name=ARTIFACT_NAME_LOVE::$(ls build/love | head -n1)"
-        echo "::set-env name=ARTIFACT_NAME_APPIMAGE::$(ls build/appimage | head -n1)"
-        echo "::set-env name=ARTIFACT_NAME_WIN64::$(ls build/win64 | head -n1)"
+        echo "::set-env name=ARTIFACT_NAME_LOVE::$(ls main/build/love | head -n1)"
+        echo "::set-env name=ARTIFACT_NAME_APPIMAGE::$(ls main/build/appimage | head -n1)"
+        echo "::set-env name=ARTIFACT_NAME_WIN64::$(ls main/build/win64 | head -n1)"
     - name: Artifact (love)
       uses: actions/upload-artifact@v2
       with:
         name: ${{ env.ARTIFACT_NAME_LOVE }}
-        path: build/love/${{ env.ARTIFACT_NAME_LOVE }}
+        path: main/build/love/${{ env.ARTIFACT_NAME_LOVE }}
     - name: Artifact (AppImage)
       uses: actions/upload-artifact@v2
       with:
         name: ${{ env.ARTIFACT_NAME_APPIMAGE }}
-        path: build/appimage/${{ env.ARTIFACT_NAME_APPIMAGE }}
+        path: main/build/appimage/${{ env.ARTIFACT_NAME_APPIMAGE }}
     - name: Artifact (Win64)
       uses: actions/upload-artifact@v2
       with:
         name: ${{ env.ARTIFACT_NAME_WIN64 }}
-        path: build/win64/${{ env.ARTIFACT_NAME_WIN64 }}
+        path: main/build/win64/${{ env.ARTIFACT_NAME_WIN64 }}
