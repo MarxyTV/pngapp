@@ -41,6 +41,8 @@ return {
         ["ui/shakedelay"] = { text = "Shake Delay" },
 
         ["ui/bgcolor"] = { text = "Background Color" },
+        ["ui/black"] = { text = "Black" },
+        ["ui/white"] = { text = "White" },
         ["ui/red"] = { text = "Red" },
         ["ui/green"] = { text = "Green" },
         ["ui/blue"] = { text = "Blue" },

@@ -67,6 +67,7 @@ function SettingsMenu:tree(ui, name_key, cb)
     end
 end
 
+local test = "#c3e8de"
 function SettingsMenu:update(ui)
     if ui:windowBegin('Settings', 0, 25, 360, love.graphics.getHeight() - 25, 'border', 'scrollbar') then
         local cols = 2
@@ -148,8 +149,27 @@ function SettingsMenu:update(ui)
         end)
 
         self:tree(ui, 'ui/bgsettings', function()
+            ui:layoutRow('dynamic', 20, 4)
+            if ui:button(lang('ui/black')) then
+                config:set_color(0, 0, 0)
+            end
+            if ui:button(lang('ui/white')) then
+                config:set_color(255, 255, 255)
+            end
+            if ui:button(lang('ui/green')) then
+                config:set_color(0, 255, 0)
+            end
+            if ui:button(lang('ui/blue')) then
+                config:set_color(0, 0, 255)
+            end
+
             ui:layoutRow('dynamic', 20, 1)
             ui:label(lang('ui/bgcolor'))
+
+            ui:layoutRow('dynamic', 120, 1)
+            config:set_colorhex(ui:colorPicker(config:get_colorhex(), 'RGB'))
+
+            ui:layoutRow('dynamic', 20, 1)
             config.data.bg_color.r = ui:property(lang('ui/red'), 0, config.data.bg_color.r, 255, 1, 1)
             config.data.bg_color.g = ui:property(lang('ui/green'), 0, config.data.bg_color.g, 255, 1, 1)
             config.data.bg_color.b = ui:property(lang('ui/blue'), 0, config.data.bg_color.b, 255, 1, 1)

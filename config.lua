@@ -1,3 +1,4 @@
+local nuklear = require 'nuklear'
 local binser = require 'ext.binser'
 
 require 'utility'
@@ -150,6 +151,22 @@ end
 
 function config:set_image(key, path)
     self.data.images[key] = path
+end
+
+function config:set_color(r, g, b)
+    self.data.bg_color.r = r
+    self.data.bg_color.g = g
+    self.data.bg_color.b = b
+end
+
+function config:get_colorhex()
+    return nuklear.colorRGBA(self.data.bg_color.r,
+        self.data.bg_color.g,
+        self.data.bg_color.b)
+end
+
+function config:set_colorhex(string)
+    self:set_color(nuklear.colorParseRGBA(string))
 end
 
 return config
