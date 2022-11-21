@@ -44,7 +44,8 @@ local default_config = {
         closed_open = nil,
         scream = nil,
         sleep = nil
-    }
+    },
+    ui_states = {}
 }
 
 setmetatable(config, config)
@@ -136,6 +137,15 @@ function config:get_image(key)
     end
 
     return nil
+end
+
+function config:get_uistate(key)
+    return (self.data.ui_states[key] ~= nil and self.data.ui_states[key])
+        and 'expanded' or 'collapsed'
+end
+
+function config:set_uistate(key, open)
+    self.data.ui_states[key] = open
 end
 
 function config:set_image(key, path)

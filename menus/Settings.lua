@@ -56,11 +56,22 @@ function SettingsMenu:drawImage(ui, frame)
     end
 end
 
+function SettingsMenu:tree(ui, name_key, cb)
+    local ui_state = config:get_uistate(name_key)
+    if ui:treePush('tab', lang(name_key), nil, ui_state) then
+        config:set_uistate(name_key, true)
+        cb()
+        ui:treePop()
+    else
+        config:set_uistate(name_key, false)
+    end
+end
+
 function SettingsMenu:update(ui)
     if ui:windowBegin('Settings', 0, 25, 360, love.graphics.getHeight() - 25, 'border', 'scrollbar') then
         local cols = 2
 
-        if ui:treePush('tab', lang('ui/talkingframes'), nil, 'collapsed') then
+        self:tree(ui, 'ui/talkingframes', function()
             ui:layoutRow('dynamic', 150, cols)
             self:drawImage(ui, 'open_closed')
             self:drawImage(ui, 'open_open')
@@ -68,10 +79,9 @@ function SettingsMenu:update(ui)
             ui:layoutRow('dynamic', 20, cols)
             ui:label(lang('ui/mouthclosed'))
             ui:label(lang('ui/mouthopened'))
-            ui:treePop()
-        end
+        end)
 
-        if ui:treePush('tab', lang('ui/blinkingframes'), nil, 'collapsed') then
+        self:tree(ui, 'ui/blinkingframes', function()
             ui:layoutRow('dynamic', 150, cols)
             self:drawImage(ui, 'closed_closed')
             self:drawImage(ui, 'closed_open')
@@ -79,10 +89,9 @@ function SettingsMenu:update(ui)
             ui:layoutRow('dynamic', 20, cols)
             ui:label(lang('ui/mouthclosed'))
             ui:label(lang('ui/mouthopened'))
-            ui:treePop()
-        end
+        end)
 
-        if ui:treePush('tab', lang('ui/extraframes'), nil, 'collapsed') then
+        self:tree(ui, 'ui/extraframes', function()
             ui:layoutRow('dynamic', 150, cols)
             self:drawImage(ui, 'scream')
             self:drawImage(ui, 'sleep')
@@ -90,10 +99,9 @@ function SettingsMenu:update(ui)
             ui:layoutRow('dynamic', 20, cols)
             ui:label(lang('ui/scream'))
             ui:label(lang('ui/sleep'))
-            ui:treePop()
-        end
+        end)
 
-        if ui:treePush('tab', lang('ui/talksettings'), nil, 'expanded') then
+        self:tree(ui, 'ui/talksettings', function()
             config.data.talk_threshold = SliderElement(ui, lang('ui/talkthreshold'), 0, config.data.talk_threshold,
                 config.data.scream_threshold, 0.001, 3)
             config.data.scream_threshold = SliderElement(ui, lang('ui/screamthreshold'), config.data.talk_threshold,
@@ -101,10 +109,9 @@ function SettingsMenu:update(ui)
             config.data.decay_time = SliderElement(ui, lang('ui/talkdecay'), 0, config.data.decay_time, 1000, 10, 0, 'ms')
             config.data.talk_enabled = ui:checkbox(lang('ui/talkenabled'), config.data.talk_enabled)
             config.data.scream_enabled = ui:checkbox(lang('ui/screamenabled'), config.data.scream_enabled)
-            ui:treePop()
-        end
+        end)
 
-        if ui:treePush('tab', lang('ui/blinksettings'), nil, 'expanded') then
+        self:tree(ui, 'ui/blinksettings', function()
             config.data.blink_chance = SliderElement(ui, lang('ui/blinkchance'), 0, config.data.blink_chance, 100, 1, 0,
                 '%')
             config.data.blink_duration = SliderElement(ui, lang('ui/blinkduration'), 10, config.data.blink_duration, 4000
@@ -112,10 +119,9 @@ function SettingsMenu:update(ui)
             config.data.blink_delay = SliderElement(ui, lang('ui/blinkdelay'), 10, config.data.blink_delay, 4000, 10, 3,
                 'ms')
             config.data.blink_enabled = ui:checkbox(lang('ui/blinkenabled'), config.data.blink_enabled)
-            ui:treePop()
-        end
+        end)
 
-        if ui:treePush('tab', lang('ui/shakesettings'), nil, 'expanded') then
+        self:tree(ui, 'ui/shakesettings', function()
             ui:layoutRow('dynamic', 20, 1)
             ui:label(lang('ui/shaketype'))
             ui:layoutRow('dynamic', 30, 1)
@@ -129,10 +135,9 @@ function SettingsMenu:update(ui)
                 config.data.shake_lerp_speed, 2000, 10)
             config.data.shake_delay = SliderElement(ui, lang('ui/shakedelay'), 0, config.data.shake_delay, 1000, 1)
             config.data.shake_enabled = ui:checkbox(lang('ui/shakeenabled'), config.data.shake_enabled)
-            ui:treePop()
-        end
+        end)
 
-        if ui:treePush('tab', lang('ui/misc'), nil, 'expanded') then
+        self:tree(ui, 'ui/misc', function()
             config.data.sleep_lerp_speed = SliderElement(ui, lang('ui/sleeptime'), 10,
                 config.data.sleep_lerp_speed, 2000, 10)
             config.data.sleep_distance = SliderElement(ui, lang('ui/sleepdistance'), 0,
@@ -140,17 +145,16 @@ function SettingsMenu:update(ui)
             if ui:button(lang('ui/togglesleep')) then
                 avatar:sleepToggle()
             end
-            ui:treePop()
-        end
+        end)
 
-        if ui:treePush('tab', lang('ui/bgsettings'), nil, 'expanded') then
+        self:tree(ui, 'ui/bgsettings', function()
             ui:layoutRow('dynamic', 20, 1)
             ui:label(lang('ui/bgcolor'))
             config.data.bg_color.r = ui:property(lang('ui/red'), 0, config.data.bg_color.r, 255, 1, 1)
             config.data.bg_color.g = ui:property(lang('ui/green'), 0, config.data.bg_color.g, 255, 1, 1)
             config.data.bg_color.b = ui:property(lang('ui/blue'), 0, config.data.bg_color.b, 255, 1, 1)
             ui:treePop()
-        end
+        end)
     end
 
     ui:windowEnd()
