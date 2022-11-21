@@ -59,6 +59,7 @@ return {
         ["ui/shakeenabled"] = { text = "Shake Enabled"},
 
         -- image select
+        ["ui/clear"] = { text = "Clear" },
         ["ui/refresh"] = { text = "Refresh" },
         ["ui/openfolder"] = { text = "Open Folder" },
     }

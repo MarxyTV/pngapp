@@ -223,8 +223,10 @@ function avatar:update(dt)
 end
 
 function avatar:draw()
-    if self.current_frame ~= nil then
-        love.graphics.draw(self.current_frame,
+    local frame = self.current_frame == nil and self.frames.open_closed or self.current_frame
+
+    if frame ~= nil then
+        love.graphics.draw(frame,
             self.position.x,
             self.position.y,
             0,

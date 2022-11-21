@@ -54,7 +54,7 @@ function ImageSelect:update(ui)
     if ui:windowBegin('Image Select', 360, 25, 640, 460,
         'border', 'scrollbar') then
 
-        ui:layoutRow('dynamic', 20, 6)
+        ui:layoutRow('dynamic', 20, 7)
         if ui:button(lang('ui/openfolder')) then
             if timeMS() - self.openTimer >= open_delay then
                 self.openTimer = timeMS() + open_delay
@@ -68,6 +68,11 @@ function ImageSelect:update(ui)
 
         if ui:button(lang('ui/refresh')) then
             self.dirLoaded = false
+        end
+
+        if ui:button(lang('ui/clear')) then
+            config:set_image(SettingsMenu.imageKey, nil)
+            avatar:reload_frame(SettingsMenu.imageKey)
         end
 
         ui:spacing(1)
