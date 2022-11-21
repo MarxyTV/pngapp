@@ -10,7 +10,9 @@ if APPDIR then
 end
 
 function addPath(path)
-    package.cpath = package.cpath .. ";" .. path .. sep .. "libs" .. sep .. folder .. sep .. "?" .. ext
+    if path ~= nil then
+        package.cpath = package.cpath .. ";" .. path .. sep .. "libs" .. sep .. folder .. sep .. "?" .. ext
+    end
 end
 
 addPath(love.filesystem.getWorkingDirectory())
