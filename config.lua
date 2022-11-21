@@ -80,13 +80,13 @@ function config:load()
     self.initial = copy_table(data[1]) -- store this so we can undo changes later
 
     --#region Update old config
-    self:fixValue('talk_enabled', true)
-    self:fixValue('scream_enabled', true)
-    self:fixValue('shake_enabled', true)
-    self:fixValue('blink_enabled', true)
-    self:fixValue('sleep_lerp_speed', 1000)
+    for key, value in pairs(default_config) do
+        if self.data[key] == nil then
+            self.data[key] = value
+        end
+    end
     --#endregion Update old config
-    
+
     print(string.format('Loaded file %s', file))
 end
 
