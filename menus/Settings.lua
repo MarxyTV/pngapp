@@ -67,9 +67,8 @@ function SettingsMenu:tree(ui, name_key, cb)
     end
 end
 
-local test = "#c3e8de"
 function SettingsMenu:update(ui)
-    if ui:windowBegin('Settings', 0, 25, 360, love.graphics.getHeight() - 25, 'border', 'scrollbar') then
+    if ui:windowBegin('Settings', love.graphics.getWidth() - 360, 25, 360, love.graphics.getHeight() - 25, 'border', 'scrollbar') then
         local cols = 2
 
         self:tree(ui, 'ui/talkingframes', function()
