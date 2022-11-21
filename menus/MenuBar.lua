@@ -2,6 +2,7 @@ local config = require 'config'
 local avatar = require 'avatar'
 local audio = require 'audio'
 local lang = require 'lang'
+local pretty = require 'pl.pretty'
 
 local MenuBar = {
     settings_open = true,
@@ -75,8 +76,13 @@ function MenuBar:update(ui)
             ui:layoutRow('dynamic', 20, 1)
             local deviceList = love.audio.getRecordingDevices()
             for index, inputDevice in ipairs(deviceList) do
-                local labelText = (config.data.mic_index == index and 'X ' or ' ') ..
-                    strsplit(inputDevice:getName(), " on ")[2]
+                local deviceName = inputDevice:getName()
+
+                if string.find(deviceName, ' on ') then
+                    deviceName = strsplit(deviceName, ' on ')[2]
+                end
+                
+                local labelText = (config.data.mic_index == index and 'X ' or ' ') .. deviceName
                 if ui:button(labelText) then
                     config.data.mic_index = index
                     audio:setMicrophone(inputDevice)

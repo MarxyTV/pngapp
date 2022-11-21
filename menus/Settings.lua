@@ -66,8 +66,8 @@ function SettingsMenu:update(ui)
             self:drawImage(ui, 'open_open')
 
             ui:layoutRow('dynamic', 20, cols)
-            ui:label('Mouth Closed')
-            ui:label('Mouth Opened')
+            ui:label(lang('ui/mouthclosed'))
+            ui:label(lang('ui/mouthopened'))
             ui:treePop()
         end
 
@@ -77,8 +77,8 @@ function SettingsMenu:update(ui)
             self:drawImage(ui, 'closed_open')
 
             ui:layoutRow('dynamic', 20, cols)
-            ui:label('Mouth Closed')
-            ui:label('Mouth Opened')
+            ui:label(lang('ui/mouthclosed'))
+            ui:label(lang('ui/mouthopened'))
             ui:treePop()
         end
 
@@ -88,8 +88,8 @@ function SettingsMenu:update(ui)
             self:drawImage(ui, 'sleeping')
 
             ui:layoutRow('dynamic', 20, cols)
-            ui:label('Scream/Mic Peak')
-            ui:label('Sleeping')
+            ui:label(lang('ui/scream'))
+            ui:label(lang('ui/sleep'))
             ui:treePop()
         end
 
@@ -99,8 +99,8 @@ function SettingsMenu:update(ui)
             config.data.scream_threshold = sliderElement(ui, lang('ui/screamthreshold'), config.data.talk_threshold,
                 config.data.scream_threshold, 2, 0.001, 3)
             config.data.decay_time = sliderElement(ui, lang('ui/talkdecay'), 0, config.data.decay_time, 1000, 10, 0, 'ms')
-            config.data.talk_enabled = ui:checkbox('Talk Enabled', config.data.talk_enabled)
-            config.data.scream_enabled = ui:checkbox('Scream Enabled', config.data.scream_enabled)
+            config.data.talk_enabled = ui:checkbox(lang('ui/talkenabled'), config.data.talk_enabled)
+            config.data.scream_enabled = ui:checkbox(lang('ui/screamenabled'), config.data.scream_enabled)
             ui:treePop()
         end
 
@@ -111,7 +111,7 @@ function SettingsMenu:update(ui)
                 , 10, 0, 'ms')
             config.data.blink_delay = sliderElement(ui, lang('ui/blinkdelay'), 10, config.data.blink_delay, 4000, 10, 3,
                 'ms')
-            config.data.blink_enabled = ui:checkbox('Blink Enabled', config.data.blink_enabled)
+            config.data.blink_enabled = ui:checkbox(lang('ui/blinkenabled'), config.data.blink_enabled)
             ui:treePop()
         end
 
@@ -128,7 +128,7 @@ function SettingsMenu:update(ui)
             config.data.shake_lerp_speed = sliderElement(ui, lang('ui/shakelerpspeed'), 10, config.data.shake_lerp_speed
                 , 2000, 10)
             config.data.shake_delay = sliderElement(ui, lang('ui/shakedelay'), 0, config.data.shake_delay, 1000, 1)
-            config.data.shake_enabled = ui:checkbox('Shake Enabled', config.data.shake_enabled)
+            config.data.shake_enabled = ui:checkbox(lang('ui/shakeenabled'), config.data.shake_enabled)
             ui:treePop()
         end
 
