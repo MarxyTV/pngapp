@@ -81,7 +81,7 @@ function MenuBar:update(ui)
                 if string.find(deviceName, ' on ') then
                     deviceName = strsplit(deviceName, ' on ')[2]
                 end
-                
+
                 local labelText = (config.data.mic_index == index and 'X ' or ' ') .. deviceName
                 if ui:button(labelText) then
                     config.data.mic_index = index
