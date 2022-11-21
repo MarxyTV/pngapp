@@ -1,7 +1,7 @@
 local config = require 'config'
 local lang = require 'lang'
-local pretty = require 'pl.pretty'
 local avatar = require 'avatar'
+local pretty = require 'pl.pretty'
 require 'ui_util'
 
 local SettingsMenu = {
@@ -43,9 +43,8 @@ function SettingsMenu:init()
     self.easeIndex = self.easeIndexTable[config.data.shake_type]
 end
 
-function SettingsMenu:drawImage(ui, key)
-    local img = avatar.frames[key]
-    local frame = self.frames:get(key)
+function SettingsMenu:drawImage(ui, frame)
+    local img = avatar.frames[frame]
     if ui:button(img == nil and nil or "none", img) then
         if frame ~= self.imageKey then
             self.openImageSelect = true
@@ -57,16 +56,9 @@ function SettingsMenu:drawImage(ui, key)
     end
 end
 
--- static const float ratio[] = {0.15f, 0.85f};
---     nk_style_set_font(ctx, &media->font_22->handle);
---     nk_layout_row(ctx, NK_DYNAMIC, height, 2, ratio);
---     nk_spacing(ctx, 1);
 function SettingsMenu:update(ui)
     if ui:windowBegin('Settings', 0, 25, 360, love.graphics.getHeight() - 25, 'border', 'scrollbar') then
         local cols = 2
-        local count = 6
-        local rows = 3
-
 
         if ui:treePush('tab', lang('ui/talkingframes'), nil, 'collapsed') then
             ui:layoutRow('dynamic', 150, cols)
@@ -132,10 +124,11 @@ function SettingsMenu:update(ui)
             config.data.shake_type = self.easingFunctions[self.easeIndex]
             config.data.shake_scale = sliderElement(ui, lang('ui/shakescale'), 0, config.data.shake_scale, 200, 0.5)
             config.data.scream_shake_scale = sliderElement(ui, lang('ui/shakescreamscale'), 0,
-                config.data.scream_shake_scale , 200, 0.5)
+                config.data.scream_shake_scale, 200, 0.5)
             config.data.shake_lerp_speed = sliderElement(ui, lang('ui/shakelerpspeed'), 10, config.data.shake_lerp_speed
                 , 2000, 10)
             config.data.shake_delay = sliderElement(ui, lang('ui/shakedelay'), 0, config.data.shake_delay, 1000, 1)
+            config.data.shake_enabled = ui:checkbox('Shake Enabled', config.data.shake_enabled)
             ui:treePop()
         end
 

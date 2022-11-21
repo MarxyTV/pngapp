@@ -15,6 +15,7 @@ local default_config = {
     scream_enabled = true,
     scream_threshold = 0.47,
     decay_time = 250,
+    shake_enabled = true,
     shake_scale = 15.0,
     scream_shake_scale = 25.0,
     shake_lerp_speed = 500,
@@ -55,6 +56,12 @@ local function currentFile()
     return fileForSlot(config.slot)
 end
 
+function config:fixValue(key, default)
+    if config.data[key] == nil then
+        config.data[key] = default
+    end
+end
+
 -- load
 function config:load()
     local file = currentFile()
@@ -70,6 +77,14 @@ function config:load()
     local data, len = binser.deserialize(buffer)
     self.data = copy_table(data[1])
     self.initial = copy_table(data[1]) -- store this so we can undo changes later
+
+    --#region Update old config
+    self:fixValue('talk_enabled', true)
+    self:fixValue('scream_enabled', true)
+    self:fixValue('shake_enabled', true)
+    self:fixValue('blink_enabled', true)
+    --#endregion Update old config
+    
     print(string.format('Loaded file %s', file))
 end
 

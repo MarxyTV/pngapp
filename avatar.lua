@@ -44,41 +44,41 @@ local function default_position()
 end
 
 function avatar:update_offsets()
-    avatar.tween = nil
-    avatar.position.x = config.data.offsetx
-    avatar.position.y = config.data.offsety
+    self.tween = nil
+    self.position.x = config.data.offsetx
+    self.position.y = config.data.offsety
 end
 
 function avatar:sleepToggle()
-    avatar.isSleeping = not avatar.isSleeping
+    self.isSleeping = not self.isSleeping
 
-    if avatar.isSleeping then
+    if self.isSleeping then
         local tmpPos = default_position()
         tmpPos.y = tmpPos.y - 20
-        avatar.position = default_position()
-        avatar.position.y = avatar.position.y + 20
-        avatar.sleepDirection = 0
-        avatar:startSleep(tmpPos)
-        avatar.sleepStart = copy_table(tmpPos)
-        avatar.sleepEnd = copy_table(avatar.position)
+        self.position = default_position()
+        self.position.y = self.position.y + 20
+        self.sleepDirection = 0
+        self:startSleep(tmpPos)
+        self.sleepStart = copy_table(tmpPos)
+        self.sleepEnd = copy_table(self.position)
     else
-        avatar.tween = nil
-        avatar:update_offsets()
+        self.tween = nil
+        self:update_offsets()
     end
 end
 
 function avatar:startSleep(endPosition)
-    avatar.tween = tween.new(1000, avatar.position, endPosition, 'inOutQuad')
+    self.tween = tween.new(1000, self.position, endPosition, 'inOutQuad')
 end
 
 function avatar:updateShake(mag)
     local t = love.timer.getTime() * 1000
 
-    if t - avatar.shake_end_time > config.data.shake_delay then
-        avatar.shake_end_time = t + config.data.shake_delay
-        avatar.position.x = love.math.random(-mag, mag) + default_position().x
-        avatar.position.y = love.math.random(-mag, mag) + default_position().y
-        avatar.tween = tween.new(config.data.shake_lerp_speed, avatar.position, default_position(),
+    if t - self.shake_end_time > config.data.shake_delay then
+        self.shake_end_time = t + config.data.shake_delay
+        self.position.x = love.math.random(-mag, mag) + default_position().x
+        self.position.y = love.math.random(-mag, mag) + default_position().y
+        self.tween = tween.new(config.data.shake_lerp_speed, self.position, default_position(),
             config.data.shake_type)
     end
 end
@@ -86,53 +86,70 @@ end
 -- determines which image frame we should use
 function avatar:getFrame(amplitude)
     local frame = nil
-    local lastTalk = timeMS() - avatar.talk_end_time
+    local lastTalk = timeMS() - self.talk_end_time
 
-    if avatar.isSleeping then
-        return avatar.frames.sleep
+    if self.isSleeping then
+        return self.frames.sleep
     end
 
     -- check for talk decay
     if lastTalk < config.data.decay_time then
         -- always update on scream since its highest state
-        if amplitude > config.data.scream_threshold or avatar.talk_type == 1 then
+        if (amplitude > config.data.scream_threshold or self.talk_type == 1) and config.data.scream_enabled and
+            config.data.talk_enabled
+        then
             -- screaming
-            frame = avatar.frames.scream
-            avatar.talk_type = 1
+            frame = self.frames.scream
+            self.talk_type = 1
             -- only update talk time if were still reaching the threshold
             if amplitude > config.data.scream_threshold then
-                avatar.talk_end_time = timeMS() + config.data.decay_time
-                avatar:updateShake(amplitude * config.data.scream_shake_scale)
+                self.talk_end_time = timeMS() + config.data.decay_time
+                if config.data.shake_enabled then
+                    self:updateShake(amplitude * config.data.scream_shake_scale)
+                end
             end
-        elseif (amplitude > config.data.talk_threshold and amplitude < config.data.scream_threshold) or
-            avatar.talk_type == 0 then
+        elseif amplitude > config.data.talk_threshold or self.talk_type == 0 then
             -- if were not decaying screaming, update talk if needed
             -- talking
-            frame = avatar.do_blink and avatar.frames.closed_open or avatar.frames.open_open
-            avatar.talk_type = 0
+            if config.data.talk_enabled then
+                frame = self.do_blink and self.frames.closed_open or self.frames.open_open
+            else
+                frame = self.do_blink and self.frames.closed_closed or self.frames.open_closed
+            end
+            self.talk_type = 0
             -- only update talk time if were still reaching the threshold
             if amplitude > config.data.talk_threshold then
-                avatar.talk_end_time = timeMS() + config.data.decay_time
-                avatar:updateShake(amplitude * config.data.shake_scale)
+                self.talk_end_time = timeMS() + config.data.decay_time
+                if config.data.shake_enabled then
+                    self:updateShake(amplitude * config.data.shake_scale)
+                end
             end
         end
     else
         -- not decaying, update
-        if amplitude > config.data.scream_threshold then
+        if amplitude > config.data.scream_threshold and config.data.scream_enabled then
             -- screaming
-            frame = avatar.frames.scream
-            avatar.talk_end_time = timeMS() + config.data.decay_time
-            avatar.talk_type = 1
-            avatar:updateShake(amplitude * config.data.scream_shake_scale)
+            frame = self.frames.scream
+            self.talk_end_time = timeMS() + config.data.decay_time
+            self.talk_type = 1
+            if config.data.shake_enabled then
+                self:updateShake(amplitude * config.data.scream_shake_scale)
+            end
         elseif amplitude > config.data.talk_threshold then
             -- talking
-            frame = avatar.do_blink and avatar.frames.closed_open or avatar.frames.open_open
-            avatar.talk_end_time = timeMS() + config.data.decay_time
-            avatar.talk_type = 0
-            avatar:updateShake(amplitude * config.data.shake_scale)
+            if config.data.talk_enabled then
+                frame = self.do_blink and self.frames.closed_open or self.frames.open_open
+            else
+                frame = self.do_blink and self.frames.closed_closed or self.frames.open_closed
+            end
+            self.talk_end_time = timeMS() + config.data.decay_time
+            self.talk_type = 0
+            if config.data.shake_enabled then
+                self:updateShake(amplitude * config.data.shake_scale)
+            end
         else
             -- quiet
-            frame = avatar.do_blink and avatar.frames.closed_closed or avatar.frames.open_closed
+            frame = self.do_blink and self.frames.closed_closed or self.frames.open_closed
         end
     end
 
@@ -140,71 +157,76 @@ function avatar:getFrame(amplitude)
 end
 
 function avatar:init()
-    avatar.frames.open_closed = config:get_image('open_closed')
-    avatar.frames.open_open = config:get_image('open_open')
-    avatar.frames.closed_closed = config:get_image('closed_closed')
-    avatar.frames.closed_open = config:get_image('closed_open')
-    avatar.frames.scream = config:get_image('scream')
-    avatar.frames.sleep = config:get_image('sleep')
-    avatar.position = default_position();
+    self.frames.open_closed = config:get_image('open_closed')
+    self.frames.open_open = config:get_image('open_open')
+    self.frames.closed_closed = config:get_image('closed_closed')
+    self.frames.closed_open = config:get_image('closed_open')
+    self.frames.scream = config:get_image('scream')
+    self.frames.sleep = config:get_image('sleep')
+    self.position = default_position();
 end
 
 function avatar:reload_frame(key)
     avatar.frames[key] = config:get_image(key)
 end
 
-function avatar:update(dt)
-    -- check for blinking
-    avatar.do_blink = false
-
-    if timeMS() - avatar.blink_time >= config.data.blink_delay then
+function avatar:checkBlink()
+    if timeMS() - self.blink_time >= config.data.blink_delay then
         if love.math.random() * 100 <= config.data.blink_chance then
             -- we blink, add delay before we can blink again
-            avatar.blink_end_time = timeMS() + config.data.blink_duration
-            avatar.blink_time = timeMS() + config.data.blink_delay
-            avatar.do_blink = true
+            self.blink_end_time = timeMS() + config.data.blink_duration
+            self.blink_time = timeMS() + config.data.blink_delay
+            self.do_blink = true
         else
             -- we no blink, add delay before trying again
-            avatar.blink_time = timeMS() + config.data.blink_delay * 2
+            self.blink_time = timeMS() + config.data.blink_delay * 2
         end
     end
 
     -- check if still blinking
-    if avatar.do_blink == false and timeMS() - avatar.blink_end_time < config.data.blink_duration then
-        avatar.do_blink = true
+    if self.do_blink == false and timeMS() - self.blink_end_time < config.data.blink_duration then
+        self.do_blink = true
+    end
+end
+
+function avatar:update(dt)
+    self.do_blink = false
+
+    if config.data.blink_enabled then
+        self:checkBlink()
     end
 
     -- get current frame
-    avatar.current_frame = avatar:getFrame(audio:getMicAmplitude())
+    self.current_frame = self:getFrame(audio:getMicAmplitude())
 
     -- easing
     local completedTween = false
 
-    if avatar.tween ~= nil then
-        completedTween = avatar.tween:update(dt * 1000) -- update image tween in msec
+    if self.tween ~= nil then
+        completedTween = self.tween:update(dt * 1000) -- update image tween in msec
     end
 
     -- reverse direction so avatar bobs
-    if avatar.isSleeping and (avatar.tween == nil or completedTween) then
+    if self.isSleeping and (self.tween == nil or completedTween) then
         local tmp = {}
 
-        if avatar.sleepDirection == 0 then
-            tmp = copy_table(avatar.sleepEnd)
-            avatar.sleepDirection = 1
+        if self.sleepDirection == 0 then
+            tmp = copy_table(self.sleepEnd)
+            self.sleepDirection = 1
         else
-            tmp = copy_table(avatar.sleepStart)
-            avatar.sleepDirection = 0
+            tmp = copy_table(self.sleepStart)
+            self.sleepDirection = 0
         end
 
-        avatar:startSleep(tmp)
+        self:startSleep(tmp)
     end
 end
 
 function avatar:draw()
-    if avatar.current_frame ~= nil then
-        love.graphics.draw(avatar.current_frame,
-            avatar.position.x,
-            avatar.position.y,
+    if self.current_frame ~= nil then
+        love.graphics.draw(self.current_frame,
+            self.position.x,
+            self.position.y,
             0,
             config.data.zoom,
             config.data.zoom)
