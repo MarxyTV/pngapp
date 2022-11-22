@@ -80,7 +80,6 @@ function MenuBar:update(ui)
                         audio:setMicrophone(inputDevice)
                     end
                 end
-                ui:menuEnd()
             end)
 
             ui:menu(lang('ui/language'), 'none', 150, 200, function ()
@@ -90,7 +89,6 @@ function MenuBar:update(ui)
                         lang:set_locale(locale)
                     end
                 end
-                ui:menuEnd()
             end)
         end)
     end)
