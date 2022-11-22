@@ -114,8 +114,8 @@ function love.mousemoved(x, y, dx, dy, istouch)
 
     -- if not clicked on menu, drag menu
     if dragging then
-        config.data.offsetx = config.data.offsetx + dx
-        config.data.offsety = config.data.offsety + dy
+        config.data.offsetx = config.data.offsetx - dx
+        config.data.offsety = config.data.offsety - dy
 
         avatar:update_offsets()
     end

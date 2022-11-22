@@ -1,9 +1,11 @@
+local Camera = require 'ext.hump.camera'
 local tween = require 'ext.tween'
 
 local config = require 'config'
 local audio = require 'audio'
 
 local avatar = {
+    camera = nil,
     -- image frames
     frames = {
         open_closed = nil,
@@ -164,6 +166,7 @@ function avatar:init()
     self.frames.scream = config:get_image('scream')
     self.frames.sleep = config:get_image('sleep')
     self.position = default_position();
+    self.camera = Camera(self.position.x, self.position.y)
 end
 
 function avatar:reload_frame(key)
@@ -220,19 +223,24 @@ function avatar:update(dt)
 
         self:startSleep(tmp)
     end
+
+    -- camera
+    local dx, dy = self.position.x - self.camera.x, self.position.y - self.camera.y
+    self.camera:move(dx, dy)
+    self.camera:zoomTo(config.data.zoom)
 end
 
 function avatar:draw()
+    self.camera:attach()
     local frame = self.current_frame == nil and self.frames.open_closed or self.current_frame
 
     if frame ~= nil then
         love.graphics.draw(frame,
-            self.position.x,
-            self.position.y,
-            0,
-            config.data.zoom,
-            config.data.zoom)
+            love.graphics.getWidth() / 2,
+            love.graphics.getHeight() / 2,
+            0)
     end
+    self.camera:detach()
 end
 
 function avatar:shutdown()
