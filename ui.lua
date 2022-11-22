@@ -19,6 +19,8 @@ function ui:init()
 
     ui.nk = nuklear.newUI()
 
+    ui.nk:styleDefault()
+
     MenuBar:init()
     SettingsMenu:init()
     DebugMenu:init()
