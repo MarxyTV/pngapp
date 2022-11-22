@@ -126,7 +126,7 @@ function love.textinput(text)
 end
 
 function love.wheelmoved(x, y)
-    if not UI:wheelmoved(x, y) then
+    if not UI:windowIsAnyHovered() or not UI:wheelmoved(x, y) then
         if y ~= 0 then
             config.data.zoom = config.data.zoom + (y * 0.1)
 

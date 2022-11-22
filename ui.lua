@@ -80,4 +80,8 @@ function ui:wheelmoved(x, y)
     return ui.nk:wheelmoved(x, y)
 end
 
+function ui:windowIsAnyHovered()
+    return ui.nk:windowIsAnyHovered()
+end
+
 return ui
