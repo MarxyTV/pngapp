@@ -1,7 +1,14 @@
 -- TODO: add macos support
 local sep = package.cpath:find("\\") and "\\" or "/"
 local ext = package.cpath:find("?.so") and ".so" or ".dll"
-local folder = love.system.getOS() == "Linux" and "linux-x86_64" or "win64"
+local myOS = love.system.getOS()
+local folder = "win64"
+
+if myOS == "Linux" then
+    folder = "linux-x86_64"
+elseif myOS == "OS X" then
+    folder = "macos-x86_64"
+end
 
 -- Fixes loading shared libs on linux with AppImage
 local APPDIR = os.getenv("APPDIR")
