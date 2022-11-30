@@ -60,8 +60,11 @@ function ImageSelect:update(ui)
                 self.openTimer = timeMS() + open_delay
                 if love.system.getOS() == "Windows" then
                     os.execute('start ' .. love.filesystem.getSaveDirectory())
-                else
+                elseif love.system.getOS() == "Linux" then
                     os.execute('open ' .. love.filesystem.getSaveDirectory() .. ' &')
+                else
+                    print(love.filesystem.getSaveDirectory())
+                    os.execute('open \"' .. love.filesystem.getSaveDirectory() .. "\"")
                 end
             end
         end

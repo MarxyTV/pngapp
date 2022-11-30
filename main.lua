@@ -154,7 +154,6 @@ function love.filedropped(file)
     local ext = file:getExtension()
 
     for _, value in ipairs(supported) do
-        print(value)
         if ext == value then
             file:open("r")
             local data = file:read()
