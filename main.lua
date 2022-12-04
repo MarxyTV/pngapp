@@ -141,32 +141,18 @@ function love.gamepadpressed(joystick, button)
 end
 
 function love.filedropped(file)
-    local supported = {
-        "jpg",
-        "jpeg",
-        "png",
-        "bmp",
-        "tga",
-        "hdr",
-        "pic",
-        "exr"
-    }
-    local ext = file:getExtension()
-
-    for _, value in ipairs(supported) do
-        if ext == value then
-            file:open("r")
-            local data = file:read()
-            file:close()
-            local fileName = GetBaseFilename(file:getFilename())
-            local newFile = love.filesystem.newFile('images/' .. fileName)
-            newFile:open('w')
-            newFile:write(data)
-            newFile:flush()
-            newFile:close()
-            return
-        end
+    if supportedFileType(file) then
+        file:open("r")
+        local data = file:read()
+        file:close()
+        local fileName = GetBaseFilename(file:getFilename())
+        local newFile = love.filesystem.newFile('images/' .. fileName)
+        newFile:open('w')
+        newFile:write(data)
+        newFile:flush()
+        newFile:close()
+        return
+    else
+        print('Unsupported file type ' .. ext)
     end
-
-    print('Unsupported file type ' .. ext)
 end

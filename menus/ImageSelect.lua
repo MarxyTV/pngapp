@@ -37,10 +37,12 @@ function ImageSelect:updateFiles()
         local info = love.filesystem.getInfo(filePath)
         if info and info.type == "file" then
             local file = love.filesystem.newFileData(filePath)
-            self.items:push({
-                icon = love.graphics.newImage(file),
-                name = value
-            })
+            if supportedFileType(file) then
+                self.items:push({
+                    icon = love.graphics.newImage(file),
+                    name = value
+                })
+            end
         end
     end
 end

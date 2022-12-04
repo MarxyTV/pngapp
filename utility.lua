@@ -69,3 +69,26 @@ end
 function pathSeperator()
   return package.cpath:find("\\") and "\\" or "/"
 end
+
+function supportedFileType(file)
+  local supported = {
+      "jpg",
+      "jpeg",
+      "png",
+      "bmp",
+      "tga",
+      "hdr",
+      "pic",
+      "exr"
+  }
+  local ext = file:getExtension()
+
+  for _, value in ipairs(supported) do
+      if ext == value then
+          return true
+      end
+  end
+
+  return false
+end
+
