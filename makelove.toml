@@ -3,6 +3,7 @@ name = "PngApp"
 love_files = [
     "::git-ls-tree::",
     "-*/.*",
+    "-./build",
     "-./libs/*"
 ]
 
@@ -41,10 +42,10 @@ shared_libraries = [
 ]
 
 [macos]
-shared_libraries = [
-    "libs/macos-x86_64/nuklear.so"
+[hooks]
+postbuild = [
+    "./scripts/postbuild_macos.sh"
 ]
-
 [macos.app_metadata]
 CFBundleName = "pngapp"
 CFBundleIdentifier = "pngapp"
