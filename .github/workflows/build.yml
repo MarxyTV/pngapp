@@ -34,7 +34,7 @@ jobs:
         echo "ARTIFACT_NAME_LOVE=$(ls main/build/love | head -n1)" >> $GITHUB_ENV
         echo "ARTIFACT_NAME_APPIMAGE=$(ls main/build/appimage | head -n1)" >> $GITHUB_ENV
         echo "ARTIFACT_NAME_WIN64=$(ls main/build/win64 | head -n1)" >> $GITHUB_ENV
-        echo "ARTIFACT_NAME_MACOS=$(ls main/build/macos | head -n1) >> $GITHUB_ENV"
+        echo "ARTIFACT_NAME_MACOS=$(ls main/build/macos | head -n1)" >> $GITHUB_ENV
     - name: Artifact (love)
       uses: actions/upload-artifact@main
       with:
