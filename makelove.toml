@@ -7,7 +7,7 @@ love_files = [
 ]
 
 # build for win64, linux, and macos (TODO)
-default_targets = ["win64", "appimage"]
+default_targets = ["win64", "appimage", "macos"]
 
 build_directory = "build"
 
@@ -40,3 +40,13 @@ shared_libraries = [
 	"libs/linux-x86_64/nuklear.so"
 ]
 
+[macos]
+shared_libraries = [
+    "libs/macos-x86_64/nuklear.so"
+]
+
+[macos.app_metadata]
+CFBundleName = "pngapp"
+CFBundleIdentifier = "pngapp"
+NSHumanReadableCopyright = "Copyright © 2022 Marcus Collins"
+CFBundleShortVersionString = "{version}"
