@@ -62,8 +62,7 @@ function ImageSelect:update(ui)
                     os.execute('start ' .. love.filesystem.getSaveDirectory())
                 elseif love.system.getOS() == "Linux" then
                     os.execute('open ' .. love.filesystem.getSaveDirectory() .. ' &')
-                else
-                    print(love.filesystem.getSaveDirectory())
+                else -- Mac
                     os.execute('open \"' .. love.filesystem.getSaveDirectory() .. "\"")
                 end
             end

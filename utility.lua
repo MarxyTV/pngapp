@@ -62,7 +62,10 @@ function strsplit(str, pat, limit)
 end
 
 function GetBaseFilename(path)
-  -- MAC OS need to fix this...
-  local start, finish = path:find('[%w%s!-={-|]+[_%.].+')
+  local start, finish = path:find('[^' .. pathSeperator() .. ']+$')
   return path:sub(start, #path)
+end
+
+function pathSeperator()
+  return package.cpath:find("\\") and "\\" or "/"
 end
