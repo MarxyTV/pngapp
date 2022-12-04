@@ -44,7 +44,7 @@ shared_libraries = [
 [macos]
 [hooks]
 postbuild = [
-    "./scripts/postbuild_macos.sh"
+    "chmod +x ./scripts/postbuild_macos.sh && ./scripts/postbuild_macos.sh"
 ]
 [macos.app_metadata]
 CFBundleName = "pngapp"
