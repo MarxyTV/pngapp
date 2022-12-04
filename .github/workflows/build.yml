@@ -34,6 +34,7 @@ jobs:
         echo "ARTIFACT_NAME_LOVE=$(ls main/build/love | head -n1)" >> $GITHUB_ENV
         echo "ARTIFACT_NAME_APPIMAGE=$(ls main/build/appimage | head -n1)" >> $GITHUB_ENV
         echo "ARTIFACT_NAME_WIN64=$(ls main/build/win64 | head -n1)" >> $GITHUB_ENV
+        echo "ARTIFACT_NAME_MACOS=$(ls main/makelove-build/macos | head -n1) >> $GITHUB_ENV"
     - name: Artifact (love)
       uses: actions/upload-artifact@main
       with:
@@ -49,3 +50,8 @@ jobs:
       with:
         name: ${{ env.ARTIFACT_NAME_WIN64 }}
         path: main/build/win64/${{ env.ARTIFACT_NAME_WIN64 }}
+    - name: Artifact (MacOS)
+      uses: actions/upload-artifact@main
+      with:
+        name: ${{ env.ARTIFACT_NAME_MACOS }}
+        path: main/build/macos/${{ env.ARTIFACT_NAME_MACOS }}
